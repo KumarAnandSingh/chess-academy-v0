@@ -13,9 +13,9 @@ import { cn } from '../../lib/utils'
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: BarChart3 },
-  { name: 'Lessons', href: '/lessons', icon: BookOpen },
-  { name: 'Puzzles', href: '/puzzles', icon: Puzzle },
-  { name: 'vs Computer', href: '/play', icon: Monitor },
+  { name: 'vs Computer Champs', href: '/play', icon: Monitor },
+  { name: 'Learn Basics', href: '/lessons', icon: BookOpen },
+  { name: 'Practice', href: '/puzzles', icon: Puzzle },
   { name: 'Leaderboard', href: '/leaderboard', icon: Trophy }
 ]
 
