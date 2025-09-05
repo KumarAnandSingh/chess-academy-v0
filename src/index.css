@@ -1,0 +1,110 @@
+@import "tailwindcss";
+
+/* Chess Academy Custom Styles */
+@layer base {
+  :root {
+    /* CSS Custom Properties for chess board sizing */
+    --chess-board-size: min(90vw, 640px);
+    --chess-square-size: calc(var(--chess-board-size) / 8);
+  }
+  
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  
+  body {
+    margin: 0;
+    min-height: 100vh;
+  }
+}
+
+/* Custom animations */
+@layer utilities {
+  .chess-piece {
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .chess-piece:hover {
+    transform: scale(1.05);
+  }
+
+  .chess-square-highlight {
+    box-shadow: inset 0 0 0 4px #f7ec74;
+  }
+
+  .chess-square-valid-move {
+    position: relative;
+  }
+
+  .chess-square-valid-move::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 30%;
+    height: 30%;
+    background-color: rgba(143, 188, 143, 0.8);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .chess-square-capture {
+    box-shadow: inset 0 0 0 4px #ff6b6b;
+  }
+
+  /* XP Bar Animation */
+  .xp-fill {
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+    transition: width 1s ease-out;
+  }
+
+  /* Achievement Unlock Animation */
+  .achievement-unlock {
+    animation: achievement-pulse 0.6s ease-out;
+  }
+
+  @keyframes achievement-pulse {
+    0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+    50% { transform: scale(1.2) rotate(-90deg); opacity: 0.8; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+
+  /* Streak Animation */
+  .streak-animation {
+    animation: streak-bounce 0.8s ease-out;
+  }
+
+  @keyframes streak-bounce {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.1); opacity: 0.9; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  /* Loading animations */
+  .loading-dots {
+    display: inline-flex;
+    gap: 4px;
+  }
+
+  .loading-dots > div {
+    width: 8px;
+    height: 8px;
+    background-color: currentColor;
+    border-radius: 50%;
+    animation: loading-bounce 1.4s ease-in-out infinite both;
+  }
+
+  .loading-dots > div:nth-child(1) { animation-delay: -0.32s; }
+  .loading-dots > div:nth-child(2) { animation-delay: -0.16s; }
+  .loading-dots > div:nth-child(3) { animation-delay: 0; }
+
+  @keyframes loading-bounce {
+    0%, 80%, 100% {
+      transform: scale(0);
+    }
+    40% {
+      transform: scale(1);
+    }
+  }
+}

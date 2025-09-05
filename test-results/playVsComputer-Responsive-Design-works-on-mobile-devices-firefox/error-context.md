@@ -1,0 +1,220 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e5]:
+  - generic [ref=e6]:
+    - button [ref=e7]:
+      - img
+    - heading "Chess Academy" [level=1] [ref=e8]
+  - main [ref=e9]:
+    - generic [ref=e11]:
+      - generic [ref=e12]:
+        - heading "Play vs Computer" [level=1] [ref=e13]
+        - paragraph [ref=e14]: Test your skills against our AI-powered chess engine. Choose your difficulty and color!
+        - generic [ref=e15]:
+          - generic [ref=e16]:
+            - generic [ref=e17]: "0"
+            - generic [ref=e18]: Wins
+          - generic [ref=e19]:
+            - generic [ref=e20]: "0"
+            - generic [ref=e21]: Losses
+          - generic [ref=e22]:
+            - generic [ref=e23]: "0"
+            - generic [ref=e24]: Draws
+        - generic [ref=e25]:
+          - heading "Game Settings" [level=3] [ref=e26]
+          - generic [ref=e27]:
+            - generic [ref=e28]:
+              - generic [ref=e29]: Computer Difficulty
+              - generic [ref=e30]:
+                - generic [ref=e31]:
+                  - radio "easy Perfect for beginners learning the game" [ref=e32]
+                  - generic [ref=e33]:
+                    - generic [ref=e34]: easy
+                    - generic [ref=e35]: Perfect for beginners learning the game
+                - generic [ref=e36]:
+                  - radio "medium Good challenge for intermediate players" [checked] [ref=e37]
+                  - generic [ref=e38]:
+                    - generic [ref=e39]: medium
+                    - generic [ref=e40]: Good challenge for intermediate players
+                - generic [ref=e41]:
+                  - radio "hard Tough opponent for experienced players" [ref=e42]
+                  - generic [ref=e43]:
+                    - generic [ref=e44]: hard
+                    - generic [ref=e45]: Tough opponent for experienced players
+                - generic [ref=e46]:
+                  - radio "expert Maximum strength - good luck!" [ref=e47]
+                  - generic [ref=e48]:
+                    - generic [ref=e49]: expert
+                    - generic [ref=e50]: Maximum strength - good luck!
+            - generic [ref=e51]:
+              - generic [ref=e52]: Your Color
+              - generic [ref=e53]:
+                - generic [ref=e54]:
+                  - radio "White (moves first)" [checked] [ref=e55]
+                  - generic [ref=e58]: White (moves first)
+                - generic [ref=e59]:
+                  - radio "Black (computer moves first)" [ref=e60]
+                  - generic [ref=e63]: Black (computer moves first)
+          - button "Start New Game" [ref=e65]
+      - generic [ref=e67]:
+        - generic [ref=e68]:
+          - generic [ref=e70]:
+            - heading "Play vs Computer" [level=2] [ref=e71]
+            - generic [ref=e72]: Medium
+          - generic [ref=e76]:
+            - generic [ref=e77]:
+              - generic [ref=e79]:
+                - generic [ref=e80]: "8"
+                - button [ref=e82]:
+                  - img [ref=e84]
+              - button [ref=e100]:
+                - img [ref=e102]
+              - button [ref=e112]:
+                - img [ref=e114]
+              - button [ref=e124]:
+                - img [ref=e126]
+              - button [ref=e146]:
+                - img [ref=e148]
+              - button [ref=e159]:
+                - img [ref=e161]
+              - button [ref=e171]:
+                - img [ref=e173]
+              - button [ref=e183]:
+                - img [ref=e185]
+              - generic [ref=e199]:
+                - generic [ref=e200]: "7"
+                - button [ref=e202]:
+                  - img [ref=e204]
+              - button [ref=e209]:
+                - img [ref=e211]
+              - button [ref=e216]:
+                - img [ref=e218]
+              - button [ref=e223]:
+                - img [ref=e225]
+              - button [ref=e230]:
+                - img [ref=e232]
+              - button [ref=e237]:
+                - img [ref=e239]
+              - button [ref=e244]:
+                - img [ref=e246]
+              - button [ref=e251]:
+                - img [ref=e253]
+              - generic [ref=e257]: "6"
+              - generic [ref=e282]: "5"
+              - generic [ref=e307]: "4"
+              - generic [ref=e332]: "3"
+              - generic [ref=e356]:
+                - generic [ref=e357]: "2"
+                - button [ref=e359]:
+                  - img [ref=e361]
+              - button [ref=e366]:
+                - img [ref=e368]
+              - button [ref=e373]:
+                - img [ref=e375]
+              - button [ref=e380]:
+                - img [ref=e382]
+              - button [ref=e387]:
+                - img [ref=e389]
+              - button [ref=e394]:
+                - img [ref=e396]
+              - button [ref=e401]:
+                - img [ref=e403]
+              - button [ref=e408]:
+                - img [ref=e410]
+              - generic [ref=e413]:
+                - generic:
+                  - generic [ref=e414]: a
+                  - generic [ref=e415]: "1"
+                - button [ref=e417]:
+                  - img [ref=e419]
+              - generic [ref=e429]:
+                - generic [ref=e430]: b
+                - button [ref=e432]:
+                  - img [ref=e434]
+              - generic [ref=e441]:
+                - generic [ref=e442]: c
+                - button [ref=e444]:
+                  - img [ref=e446]
+              - generic [ref=e454]:
+                - generic [ref=e455]: d
+                - button [ref=e457]:
+                  - img [ref=e459]
+              - generic [ref=e471]:
+                - generic [ref=e472]: e
+                - button [ref=e474]:
+                  - img [ref=e476]
+              - generic [ref=e486]:
+                - generic [ref=e487]: f
+                - button [ref=e489]:
+                  - img [ref=e491]
+              - generic [ref=e499]:
+                - generic [ref=e500]: g
+                - button [ref=e502]:
+                  - img [ref=e504]
+              - generic [ref=e511]:
+                - generic [ref=e512]: h
+                - button [ref=e514]:
+                  - img [ref=e516]
+              - img
+            - status [ref=e525]
+            - generic [ref=e527]: "Turn: White"
+          - generic [ref=e529]:
+            - button "🎮 New Game" [ref=e530] [cursor=pointer]:
+              - generic [ref=e531] [cursor=pointer]:
+                - generic [ref=e533] [cursor=pointer]: 🎮
+                - generic [ref=e534] [cursor=pointer]: New Game
+            - button "🤖 Coach" [ref=e536] [cursor=pointer]:
+              - generic [ref=e537] [cursor=pointer]:
+                - generic [ref=e539] [cursor=pointer]: 🤖
+                - generic [ref=e540] [cursor=pointer]: Coach
+        - generic [ref=e542]:
+          - generic [ref=e544]:
+            - heading "🎯 Game Status" [level=3] [ref=e545]:
+              - generic [ref=e546]: 🎯
+              - text: Game Status
+            - generic [ref=e548]:
+              - generic [ref=e549]: "Turn:"
+              - generic [ref=e550]: White
+          - generic [ref=e551]:
+            - heading "Position Evaluation" [level=3] [ref=e552]
+            - generic [ref=e555]: "0.0"
+            - generic [ref=e556]:
+              - generic [ref=e557]: Black Advantage
+              - generic [ref=e558]: Even
+              - generic [ref=e559]: White Advantage
+          - generic [ref=e560]:
+            - heading "Game Settings" [level=3] [ref=e561]
+            - generic [ref=e562]:
+              - generic [ref=e563]:
+                - generic [ref=e564]: "Playing as:"
+                - generic [ref=e565]: white
+              - generic [ref=e566]:
+                - generic [ref=e567]: "Difficulty:"
+                - generic [ref=e568]: medium
+              - generic [ref=e569]:
+                - generic [ref=e570]: "Moves played:"
+                - generic [ref=e571]: "0"
+          - generic [ref=e572]:
+            - heading "Move History" [level=3] [ref=e573]
+            - paragraph [ref=e575]: No moves yet
+      - generic [ref=e576]:
+        - heading "💡 Chess Tips" [level=3] [ref=e577]
+        - generic [ref=e578]:
+          - generic [ref=e579]:
+            - paragraph [ref=e580]:
+              - strong [ref=e581]: "Opening Principles:"
+            - list [ref=e582]:
+              - listitem [ref=e583]: Control the center with pawns
+              - listitem [ref=e584]: Develop knights before bishops
+              - listitem [ref=e585]: Castle early for king safety
+              - listitem [ref=e586]: Don't move the same piece twice
+          - generic [ref=e587]:
+            - paragraph [ref=e588]:
+              - strong [ref=e589]: "Tactical Awareness:"
+            - list [ref=e590]:
+              - listitem [ref=e591]: Always check for tactics before moving
+              - listitem [ref=e592]: Look for pins, forks, and skewers
+              - listitem [ref=e593]: Protect your pieces
+              - listitem [ref=e594]: Create threats to keep opponent busy
+```
