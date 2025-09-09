@@ -1,0 +1,83 @@
+# Netlify Configuration for Studyify Chess Academy
+# Backup deployment option to Vercel
+
+[build]
+  # Build command
+  command = "npm run build"
+  
+  # Directory to publish
+  publish = "dist"
+  
+  # Environment variables
+  [build.environment]
+    VITE_API_URL = "https://www.studyify.in/api"
+    VITE_GA_MEASUREMENT_ID = "G-TG7J1D38B6"
+    VITE_GA_DEBUG_MODE = "false"
+    VITE_ENABLE_ANALYTICS = "true"
+    NODE_VERSION = "18"
+
+# SPA routing - redirect all routes to index.html
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Asset optimization headers
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Security headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+
+# Performance optimization
+[[headers]]
+  for = "*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Custom 404 page
+[[redirects]]
+  from = "/404"
+  to = "/index.html"
+  status = 200
+
+# Development context (for branch deploys)
+[context.branch-deploy]
+  [context.branch-deploy.environment]
+    VITE_GA_DEBUG_MODE = "true"
+    VITE_ENABLE_ANALYTICS = "false"
+
+# Plugin configuration
+[[plugins]]
+  package = "@netlify/plugin-lighthouse"
+  
+  [plugins.inputs]
+    output_path = "lighthouse_reports"
+    
+    [[plugins.inputs.audits]]
+      url = "https://main--studyify.netlify.app"
+      
+    [[plugins.inputs.audits]]  
+      url = "https://main--studyify.netlify.app/dashboard"
+      
+    [[plugins.inputs.audits]]
+      url = "https://main--studyify.netlify.app/lessons"

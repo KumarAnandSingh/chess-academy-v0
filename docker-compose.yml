@@ -1,0 +1,98 @@
+# Docker Compose configuration for Studyify Chess Academy
+# Production and development environment setup
+
+version: '3.8'
+
+services:
+  # Production frontend service
+  studyify-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: studyify-chess-frontend
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - VITE_API_URL=https://www.studyify.in/api
+      - VITE_GA_MEASUREMENT_ID=G-TG7J1D38B6
+      - VITE_GA_DEBUG_MODE=false  
+      - VITE_ENABLE_ANALYTICS=true
+    volumes:
+      # Mount custom nginx config if needed
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      # SSL certificates (if using HTTPS)
+      - ./ssl:/etc/nginx/ssl:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - studyify-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.studyify.rule=Host(`www.studyify.in`)"
+      - "traefik.http.services.studyify.loadbalancer.server.port=80"
+
+  # Development service (optional)
+  studyify-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: development
+    container_name: studyify-chess-dev
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:3000/api
+      - VITE_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+      - VITE_GA_DEBUG_MODE=true
+      - VITE_ENABLE_ANALYTICS=false
+    volumes:
+      - ./src:/app/src
+      - ./public:/app/public
+      - ./index.html:/app/index.html
+      - /app/node_modules
+    command: npm run dev
+    networks:
+      - studyify-network
+    profiles:
+      - dev
+
+  # Reverse proxy (optional, for production)
+  traefik:
+    image: traefik:v2.10
+    container_name: studyify-traefik
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.myresolver.acme.email=admin@studyify.in"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./letsencrypt:/letsencrypt"
+    networks:
+      - studyify-network
+    profiles:
+      - production
+
+networks:
+  studyify-network:
+    driver: bridge
+
+volumes:
+  studyify-data:
+    driver: local

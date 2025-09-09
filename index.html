@@ -2,9 +2,113 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React + TS</title>
+    
+    <!-- Primary SEO Meta Tags -->
+    <title>Studyify - Learn Chess Online | Interactive Chess Academy & Training Platform</title>
+    <meta name="title" content="Studyify - Learn Chess Online | Interactive Chess Academy & Training Platform" />
+    <meta name="description" content="Studyify offers interactive online chess lessons with AI-powered training. Features include: guided practice lessons, 10 difficulty levels (400-2200 ELO), real-time move analysis, and step-by-step chess strategy explanations. Perfect for beginners to expert level players." />
+    <meta name="keywords" content="interactive chess learning platform, AI chess training, guided chess lessons online, chess academy with bots, learn chess strategy, chess tactics training, beginner chess course, chess openings practice, chess endgames tutorial, online chess learning, best chess training app" />
+    <meta name="author" content="Studyify" />
+    <meta name="robots" content="index, follow" />
+    <meta name="language" content="English" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.studyify.in/" />
+    <meta property="og:title" content="Studyify - Learn Chess Online | Interactive Chess Academy" />
+    <meta property="og:description" content="Master chess with interactive lessons, guided practice, and AI-powered training. From beginner to expert level." />
+    <meta property="og:image" content="https://www.studyify.in/og-image.png" />
+    <meta property="og:site_name" content="Studyify" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://www.studyify.in/" />
+    <meta property="twitter:title" content="Studyify - Learn Chess Online | Interactive Chess Academy" />
+    <meta property="twitter:description" content="Master chess with interactive lessons, guided practice, and AI-powered training. From beginner to expert level." />
+    <meta property="twitter:image" content="https://www.studyify.in/og-image.png" />
+    
+    <!-- Additional SEO -->
+    <link rel="canonical" href="https://www.studyify.in/" />
+    <meta name="theme-color" content="#3B82F6" />
+    
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "EducationalOrganization",
+      "name": "Studyify",
+      "alternateName": "Studyify Chess Academy",
+      "url": "https://www.studyify.in",
+      "logo": "https://www.studyify.in/logo.png",
+      "description": "Interactive online chess academy offering AI-powered chess training with guided practice lessons, real-time move analysis, and 10 difficulty levels from beginner (400 ELO) to expert (2200 ELO). Features include step-by-step chess strategy explanations and interactive gameplay.",
+      "sameAs": [
+        "https://www.studyify.in"
+      ],
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "IN"
+      },
+      "offers": [
+        {
+          "@type": "Course",
+          "name": "Interactive Chess Training Course",
+          "description": "Comprehensive chess training with AI-powered bots, guided practice lessons, and real-time analysis",
+          "provider": {
+            "@type": "Organization",
+            "name": "Studyify"
+          },
+          "courseMode": "online",
+          "educationalLevel": "Beginner to Expert",
+          "teaches": [
+            "Chess Strategy",
+            "Chess Tactics", 
+            "Chess Openings",
+            "Chess Endgames",
+            "Interactive Chess Gameplay"
+          ]
+        }
+      ],
+      "hasCredential": {
+        "@type": "EducationalOccupationalCredential",
+        "name": "Chess Training Completion"
+      },
+      "courseMode": "online",
+      "availableLanguage": "en",
+      "applicationCategory": "EducationalApplication",
+      "keywords": "chess learning, AI chess training, interactive chess lessons, guided chess practice, chess strategy training"
+    }
+    </script>
+    
+    <!-- Google Analytics 4 -->
+    <script type="module">
+      // Only load GA4 if enabled and measurement ID is provided
+      const measurementId = import.meta.env.VITE_GA_MEASUREMENT_ID;
+      const analyticsEnabled = import.meta.env.VITE_ENABLE_ANALYTICS === 'true';
+      
+      if (measurementId && measurementId !== 'G-XXXXXXXXXX' && analyticsEnabled) {
+        // Load Google Analytics 4 script
+        const script = document.createElement('script');
+        script.async = true;
+        script.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
+        document.head.appendChild(script);
+        
+        // Initialize dataLayer
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        
+        // Initial config will be done by the analytics service
+        window.gtag = gtag;
+      } else {
+        console.log('Google Analytics 4 disabled or not configured');
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
