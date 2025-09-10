@@ -6,6 +6,7 @@ import { Badge } from '../components/ui/badge';
 import { Progress } from '../components/ui/progress';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LessonPlayer } from '../components/lessons/LessonPlayer';
+import { BookOpen, Play, TrendingUp } from 'lucide-react';
 // Import removed - using local guided practice data
 
 interface Lesson {
@@ -1299,7 +1300,7 @@ Fun Fact: In the endgame, rooks become increasingly powerful as the board opens 
 
     return (
       <div className="min-h-screen" style={{ backgroundColor: 'var(--color-bg-base)' }}>
-        <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <div className="container mx-auto px-4 py-6 max-w-7xl">
           {/* Header with back button */}
           <div className="flex items-center mb-8">
             <Button 
@@ -1512,7 +1513,7 @@ Fun Fact: In the endgame, rooks become increasingly powerful as the board opens 
   // Main curriculum overview
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--color-bg-base)' }}>
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <div className="container mx-auto px-4 py-6 max-w-7xl">
         {/* Header */}
         <div className="text-center mb-12">
           <motion.div
@@ -1520,8 +1521,9 @@ Fun Fact: In the endgame, rooks become increasingly powerful as the board opens 
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h1 className="text-4xl font-bold mb-4" style={{ color: 'var(--color-accent-primary)' }}>
-              📚 Chess Lessons Curriculum
+            <h1 className="text-4xl font-bold mb-4 flex items-center justify-center gap-3" style={{ color: 'var(--color-accent-primary)' }}>
+              <BookOpen className="h-10 w-10" aria-label="Chess curriculum" />
+              Chess Lessons Curriculum
             </h1>
             <p className="text-lg mb-6" style={{ color: 'var(--color-text-secondary)' }}>
               Master chess systematically with our comprehensive A→Z curriculum from basics to expert level

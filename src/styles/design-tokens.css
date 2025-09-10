@@ -13,13 +13,13 @@
   --color-bg-base: #0B0F14;
   --color-bg-alt: #0F172A;
   --color-surface: #131822;
-  --color-surface-elevated: #1A212C;
+  --color-surface-elevated: #0F1720;
   --color-surface-overlay: #212936;
   
   /* TEXT HIERARCHY - WCAG AA Compliant (Bug Report Specified) */
   --color-text-primary: #FFFFFF;
   --color-text-secondary: #B7C2CB;
-  --color-text-muted: #B7C2CB;
+  --color-text-muted: #90A0AA;
   --color-text-disabled: #94A3B8;
   --color-text-inverse: #0F172A;
   
@@ -59,9 +59,9 @@
   --color-board-check: rgba(245, 158, 11, 0.4);
   
   /* BORDER & LINES - Enhanced Visibility */
-  --color-border-subtle: rgba(203, 213, 225, 0.15);
-  --color-border-default: rgba(203, 213, 225, 0.25);
-  --color-border-strong: rgba(203, 213, 225, 0.4);
+  --color-border-subtle: rgba(255, 255, 255, 0.08);
+  --color-border-default: rgba(255, 255, 255, 0.12);
+  --color-border-strong: rgba(255, 255, 255, 0.2);
   --color-border-accent: var(--color-accent-primary);
   
   /* SHADOWS & ELEVATION */

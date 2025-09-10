@@ -7,7 +7,7 @@ import { GameLevel, GameLevelDisplay, GAME_LEVELS } from './GameLevel';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
-import { Crown, Settings, RotateCcw, Flag, Trophy, Brain, Play, X, Users, Award, TrendingUp } from 'lucide-react';
+import { Crown, Settings, RotateCcw, Flag, Trophy, Brain, Play, X, Users, Award, TrendingUp, CheckCircle, XCircle, Minus } from 'lucide-react';
 import { ThinkingAnimation, Confetti, CelebrationNudge } from '../ui/GamificationEffects';
 import { audioService } from '../../services/audioService';
 
@@ -403,7 +403,7 @@ export const EnhancedPlayVsComputer: React.FC<EnhancedPlayVsComputerProps> = ({
   // Leaderboard screen
   if (showLeaderboard) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="container mx-auto px-4 py-6 max-w-4xl">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
@@ -474,7 +474,7 @@ export const EnhancedPlayVsComputer: React.FC<EnhancedPlayVsComputerProps> = ({
   // Game summary screen
   if (showGameSummary && gameSummary) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="container mx-auto px-4 py-6 max-w-4xl">
         <Card className={
           gameSummary.result === 'win' ? 'border-green-500 bg-green-50' :
           gameSummary.result === 'lose' ? 'border-red-500 bg-red-50' :
@@ -581,7 +581,7 @@ export const EnhancedPlayVsComputer: React.FC<EnhancedPlayVsComputerProps> = ({
   // Level selection screen
   if (showLevelSelect) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
+      <div className="container mx-auto px-4 py-6 max-w-6xl">
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -638,7 +638,7 @@ export const EnhancedPlayVsComputer: React.FC<EnhancedPlayVsComputerProps> = ({
   // Color selection screen
   if (showColorSelect) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="container mx-auto px-4 py-6 max-w-4xl">
         <Card>
           <CardHeader>
             <CardTitle className="text-center">Choose Your Color</CardTitle>
@@ -763,7 +763,7 @@ export const EnhancedPlayVsComputer: React.FC<EnhancedPlayVsComputerProps> = ({
                   <span className="font-bold">{playerMoves}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Pro Moves:</span>
+                  <span>Target Moves:</span>
                   <span className="font-bold text-green-600">{PRO_MOVES_DATA[selectedLevel] || 50}</span>
                 </div>
                 <div className="flex justify-between">
@@ -776,7 +776,7 @@ export const EnhancedPlayVsComputer: React.FC<EnhancedPlayVsComputerProps> = ({
                 <div className="flex justify-between">
                   <span>Turn:</span>
                   <span className="font-bold">
-                    {game.turn() === playerColor[0] ? 'Your' : currentLevel.botName + "'s"}
+                    {game.turn() === playerColor[0] ? 'Your move' : currentLevel.botName + "'s move"}
                   </span>
                 </div>
               </div>
@@ -808,8 +808,14 @@ export const EnhancedPlayVsComputer: React.FC<EnhancedPlayVsComputerProps> = ({
               'border-yellow-500 bg-yellow-50'
             }>
               <CardContent className="pt-6 text-center">
-                <div className="text-2xl mb-2">
-                  {gameResult === 'win' ? '🏆' : gameResult === 'lose' ? '😔' : '🤝'}
+                <div className="flex justify-center mb-2">
+                  {gameResult === 'win' ? (
+                    <Trophy className="h-8 w-8 text-yellow-500" aria-label="Victory" />
+                  ) : gameResult === 'lose' ? (
+                    <XCircle className="h-8 w-8 text-red-500" aria-label="Defeat" />
+                  ) : (
+                    <Minus className="h-8 w-8 text-gray-500" aria-label="Draw" />
+                  )}
                 </div>
                 <h3 className="text-lg font-bold mb-2">
                   {gameResult === 'win' ? 'Victory!' : gameResult === 'lose' ? 'Defeat' : 'Draw'}
