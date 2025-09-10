@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Brain, Puzzle, Monitor, Trophy, Target } from 'lucide-react';
+import { Brain, Puzzle, Monitor, Trophy, Target, Crown, Zap, TrendingUp, Gamepad2, Save } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from './card';
 import { Button } from './button';
 import { Progress } from './progress';
@@ -42,7 +42,16 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
         </div>
       </CardHeader>
       <CardFooter className="relative z-10 pt-0">
-        <Button variant="outline" size="sm" asChild className="w-full transition-all duration-300" style={{ borderColor: 'var(--color-border-default)', color: 'var(--color-text-secondary)' }}>
+        <Button 
+          asChild 
+          className="w-full min-h-[44px] px-4 py-3 font-semibold transition-all duration-300"
+          style={{ 
+            backgroundColor: cta.includes('Try Free') || cta.includes('Play Now') ? 'var(--color-cta-primary)' : 'transparent',
+            color: cta.includes('Try Free') || cta.includes('Play Now') ? '#ffffff' : 'var(--color-text-secondary)',
+            border: cta.includes('Try Free') || cta.includes('Play Now') ? 'none' : '1.5px solid var(--color-border-default)',
+            borderRadius: '12px'
+          }}
+        >
           <Link to={to} className="font-medium tracking-wide">{cta}</Link>
         </Button>
       </CardFooter>
@@ -163,10 +172,10 @@ const SimpleDashboard: React.FC = () => {
           <div className="absolute top-0 right-0 w-1/3 h-full" style={{ background: 'linear-gradient(270deg, var(--color-accent-primary-subtle) 0%, transparent 100%)' }} />
         </div>
         
-        <div className="relative container mx-auto px-6 py-20 text-center max-w-4xl">
+        <div className="relative container mx-auto px-6 py-12 text-center max-w-4xl">
           {/* Chess Crown Icon */}
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-xl mb-6 group hover:scale-110 transition-transform duration-300" style={{ background: 'linear-gradient(135deg, var(--color-accent-primary) 0%, var(--color-accent-primary-hover) 100%)', boxShadow: 'var(--elevation-card)' }}>
-            <div className="text-4xl text-white">♛</div>
+          <div className="inline-flex items-center justify-center w-20 h-20 mb-6 group hover:scale-110 transition-transform duration-300" style={{ background: 'linear-gradient(135deg, var(--color-accent-primary) 0%, var(--color-accent-primary-hover) 100%)', boxShadow: 'var(--elevation-card)', borderRadius: '12px' }}>
+            <Crown className="w-10 h-10 text-white" aria-label="Chess Academy" />
           </div>
           
           {/* Main Heading */}
@@ -183,29 +192,51 @@ const SimpleDashboard: React.FC = () => {
             tactical puzzles, and personalized learning paths.
           </p>
           
-          {/* CTA Buttons - Guest Access Enabled */}
+          {/* CTA Buttons - Primary Green Hierarchy */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-            <Button size="xl" variant="primary" asChild className="min-w-[200px]">
-              <Link to="/lessons">Start Learning (Free Trial)</Link>
+            <Button 
+              size="xl" 
+              asChild 
+              className="min-w-[200px] min-h-[44px] px-5 py-3 font-semibold transition-all duration-200"
+              style={{ 
+                backgroundColor: 'var(--color-cta-primary)', 
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '12px'
+              }}
+            >
+              <Link to="/lessons">Start Learning</Link>
             </Button>
-            <Button size="xl" variant="outline" asChild className="min-w-[200px]">
+            <Button 
+              size="xl" 
+              variant="outline" 
+              asChild 
+              className="min-w-[200px] min-h-[44px] px-5 py-3 font-semibold transition-all duration-200 border-2"
+              style={{ 
+                borderColor: 'var(--color-border-default)',
+                color: 'var(--color-text-secondary)',
+                borderRadius: '12px'
+              }}
+            >
               <Link to="/play">Play vs Computer</Link>
             </Button>
           </div>
           
           {/* Guest Trial Notice */}
-          <div className="text-center mb-8 p-6 rounded-xl" style={{ background: 'linear-gradient(90deg, var(--color-accent-primary-subtle) 0%, var(--color-accent-primary-subtle) 100%)', border: '1px solid var(--color-accent-primary)', opacity: 0.7 }}>
+          <div className="text-center mb-8 p-6" style={{ background: 'linear-gradient(90deg, var(--color-accent-primary-subtle) 0%, var(--color-accent-primary-subtle) 100%)', border: '1px solid var(--color-accent-primary)', opacity: 0.7, borderRadius: '12px' }}>
             <div className="max-w-2xl mx-auto">
-              <h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--color-text-primary)' }}>
-                🎮 <strong>Full Access - No Signup Required!</strong>
+              <h3 className="text-lg font-semibold mb-2 flex items-center justify-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
+                <Gamepad2 className="w-5 h-5" style={{ color: 'var(--color-accent-primary)' }} aria-label="Gaming" />
+                <strong>Full Access - No Signup Required!</strong>
               </h3>
               <p className="mb-4" style={{ color: 'var(--color-text-secondary)' }}>
                 Try everything for free: lessons, puzzles, play vs computer, strength assessment, and leaderboards. 
                 No barriers, no payments - just pure chess learning.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-                <div className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
-                  💾 Want to save progress?
+                <div className="text-sm font-medium flex items-center gap-2" style={{ color: 'var(--color-text-secondary)' }}>
+                  <Save className="w-4 h-4" style={{ color: 'var(--color-accent-primary)' }} aria-label="Save progress" />
+                  Want to save progress?
                 </div>
                 <button 
                   onClick={() => {
@@ -222,18 +253,24 @@ const SimpleDashboard: React.FC = () => {
           
           {/* Feature Highlights */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
-            <div className="text-center p-4 rounded-lg backdrop-blur-sm" style={{ backgroundColor: 'var(--color-surface-elevated)', borderColor: 'var(--color-border-subtle)', border: '1px solid' }}>
-              <div className="text-2xl mb-2">🎯</div>
+            <div className="text-center p-4 backdrop-blur-sm" style={{ backgroundColor: 'var(--color-surface-elevated)', borderColor: 'var(--color-border-subtle)', border: '1px solid', borderRadius: '12px' }}>
+              <div className="flex justify-center mb-2">
+                <Target className="w-8 h-8" style={{ color: 'var(--color-accent-primary)' }} aria-label="Personalized learning" />
+              </div>
               <h3 className="font-semibold mb-1" style={{ color: 'var(--color-text-primary)' }}>Personalized</h3>
               <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>AI adapts to your skill level</p>
             </div>
-            <div className="text-center p-4 rounded-lg backdrop-blur-sm" style={{ backgroundColor: 'var(--color-surface-elevated)', borderColor: 'var(--color-border-subtle)', border: '1px solid' }}>
-              <div className="text-2xl mb-2">⚡</div>
+            <div className="text-center p-4 backdrop-blur-sm" style={{ backgroundColor: 'var(--color-surface-elevated)', borderColor: 'var(--color-border-subtle)', border: '1px solid', borderRadius: '12px' }}>
+              <div className="flex justify-center mb-2">
+                <Zap className="w-8 h-8" style={{ color: 'var(--color-accent-primary)' }} aria-label="Interactive practice" />
+              </div>
               <h3 className="font-semibold mb-1" style={{ color: 'var(--color-text-primary)' }}>Interactive</h3>
               <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>Practice with real-time feedback</p>
             </div>
-            <div className="text-center p-4 rounded-lg backdrop-blur-sm" style={{ backgroundColor: 'var(--color-surface-elevated)', borderColor: 'var(--color-border-subtle)', border: '1px solid' }}>
-              <div className="text-2xl mb-2">📈</div>
+            <div className="text-center p-4 backdrop-blur-sm" style={{ backgroundColor: 'var(--color-surface-elevated)', borderColor: 'var(--color-border-subtle)', border: '1px solid', borderRadius: '12px' }}>
+              <div className="flex justify-center mb-2">
+                <TrendingUp className="w-8 h-8" style={{ color: 'var(--color-accent-primary)' }} aria-label="Progressive improvement" />
+              </div>
               <h3 className="font-semibold mb-1" style={{ color: 'var(--color-text-primary)' }}>Progressive</h3>
               <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>Track your improvement</p>
             </div>
@@ -247,7 +284,7 @@ const SimpleDashboard: React.FC = () => {
         {/* Daily Plan Widget */}
         <div className="mb-12 flex justify-center">
           <div className="w-full max-w-lg">
-            <div className="rounded-xl p-6" style={{ background: 'linear-gradient(135deg, var(--color-surface-elevated) 0%, var(--color-surface) 100%)', border: '1px solid var(--color-border-subtle)', boxShadow: 'var(--elevation-card)' }}>
+            <div className="p-6" style={{ background: 'linear-gradient(135deg, var(--color-surface-elevated) 0%, var(--color-surface) 100%)', border: '1px solid var(--color-border-subtle)', boxShadow: 'var(--elevation-card)', borderRadius: '12px' }}>
               <h2 className="text-xl font-semibold font-primary mb-4 text-center" style={{ color: 'var(--color-text-primary)' }}>
                 Today's Plan
               </h2>

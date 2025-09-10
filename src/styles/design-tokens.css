@@ -9,17 +9,17 @@
    =========================================== */
 
 :root {
-  /* DARK THEME (Primary) */
-  --color-bg-base: #0E1116;
+  /* DARK THEME (Primary) - Bug Report Specified Colors */
+  --color-bg-base: #0B0F14;
   --color-bg-alt: #0F172A;
   --color-surface: #131822;
   --color-surface-elevated: #1A212C;
   --color-surface-overlay: #212936;
   
-  /* TEXT HIERARCHY - WCAG AAA Compliant */
+  /* TEXT HIERARCHY - WCAG AA Compliant (Bug Report Specified) */
   --color-text-primary: #FFFFFF;
-  --color-text-secondary: #E2E8F0;
-  --color-text-muted: #CBD5E1;
+  --color-text-secondary: #B7C2CB;
+  --color-text-muted: #B7C2CB;
   --color-text-disabled: #94A3B8;
   --color-text-inverse: #0F172A;
   
@@ -30,9 +30,9 @@
   --color-accent-primary-subtle: rgba(124, 92, 255, 0.12);
   --color-accent-primary-contrast: #FFFFFF;
   
-  /* FOCUS & ACCESSIBILITY TOKENS - WCAG AAA Compliant */
-  --color-focus-ring: #3B82F6;
-  --color-focus-ring-offset: rgba(59, 130, 246, 0.2);
+  /* FOCUS & ACCESSIBILITY TOKENS - Bug Report Specified */
+  --color-focus-ring: #7AA2FF;
+  --color-focus-ring-offset: rgba(122, 162, 255, 0.12);
   --color-focus-ring-danger: #EF4444;
   --color-focus-ring-success: #22C55E;
   
@@ -43,6 +43,12 @@
   --color-warning-subtle: rgba(245, 158, 11, 0.12);
   --color-danger: #EF4444;
   --color-danger-subtle: rgba(239, 68, 68, 0.12);
+  
+  /* CTA COLORS - Bug Report Specified */
+  --color-cta-primary: #22C55E;
+  --color-cta-primary-light: #10B981;
+  --color-cta-primary-hover: #16A249;
+  --color-cta-primary-hover-light: #059669;
   
   /* CHESS BOARD COLORS - Enhanced Contrast */
   --color-board-light: #F0F4F8;
@@ -64,15 +70,15 @@
   --elevation-dropdown: 0 4px 16px rgba(0, 0, 0, 0.2);
   --elevation-modal: 0 8px 32px rgba(0, 0, 0, 0.3);
   
-  /* LIGHT THEME TOKENS - Enhanced for Better Contrast */
+  /* LIGHT THEME TOKENS - Bug Report Specified Colors */
   --color-bg-base-light: #FFFFFF;
   --color-bg-alt-light: #F8FAFC;
   --color-surface-light: #F1F5F9;
   --color-surface-elevated-light: #FFFFFF;
   --color-surface-overlay-light: #FFFFFF;
-  --color-text-primary-light: #0F172A;
-  --color-text-secondary-light: #475569;
-  --color-text-muted-light: #64748B;
+  --color-text-primary-light: #0B1726;
+  --color-text-secondary-light: #0F1724;
+  --color-text-muted-light: #0F1724;
   --color-text-disabled-light: #94A3B8;
   --color-text-inverse-light: #FFFFFF;
   
@@ -313,12 +319,15 @@ body {
   min-height: 100vh;
 }
 
-/* Focus management */
+/* Focus management - Bug Report Specified */
 :focus {
-  outline: none;
+  outline: 3px solid #7AA2FF;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(122,162,255,0.12);
 }
 
 :focus-visible {
-  outline: var(--focus-ring);
-  outline-offset: var(--focus-ring-offset);
+  outline: 3px solid #7AA2FF;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(122,162,255,0.12);
 }

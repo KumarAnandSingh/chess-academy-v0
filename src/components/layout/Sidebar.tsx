@@ -11,7 +11,8 @@ import {
   Settings,
   Bell,
   Award,
-  TrendingUp
+  TrendingUp,
+  Target
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { Button } from '../ui/button'
@@ -21,9 +22,10 @@ import { cn } from '../../lib/utils'
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: BarChart3, description: 'Your progress overview' },
-  { name: 'vs Computer', href: '/play', icon: Monitor, description: 'Play against AI' },
-  { name: 'Lessons', href: '/lessons', icon: BookOpen, description: 'Learn chess fundamentals' },
+  { name: 'Play / vs Computer', href: '/play', icon: Monitor, description: 'Play against AI' },
   { name: 'Puzzles', href: '/puzzles', icon: Puzzle, description: 'Practice tactics' },
+  { name: 'Learn / Lessons', href: '/lessons', icon: BookOpen, description: 'Learn chess fundamentals' },
+  { name: 'Rate My Strength', href: '/strength-assessment', icon: Target, description: 'Assess your skill level', divider: true },
   { name: 'Leaderboard', href: '/leaderboard', icon: Trophy, description: 'See top players' }
 ]
 
@@ -117,37 +119,41 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         "safe-left safe-right"
       )}>
         <div className="space-y-1">
-          {navigation.map((item) => {
+          {navigation.map((item, index) => {
             const Icon = item.icon
             const isActive = location.pathname === item.href
             return (
-              <Button
-                key={item.name}
-                variant={isActive ? "secondary" : "ghost"}
-                className={cn(
-                  "w-full justify-start space-x-3",
-                  "h-10 mobile:h-12 text-sm mobile:text-base",
-                  "touch:h-12",
-                  isActive && "bg-accent text-accent-foreground shadow-sm"
+              <div key={item.name}>
+                {item.divider && (
+                  <div className="my-3 border-t" style={{ borderColor: 'var(--color-border-default)' }} />
                 )}
-                asChild
-              >
-                <Link 
-                  to={item.href}
-                  onClick={onClose}
-                  className="flex items-center"
+                <Button
+                  variant={isActive ? "secondary" : "ghost"}
+                  className={cn(
+                    "w-full justify-start space-x-3",
+                    "h-10 mobile:h-12 text-sm mobile:text-base",
+                    "touch:h-12",
+                    isActive && "bg-accent text-accent-foreground shadow-sm"
+                  )}
+                  asChild
                 >
-                  <Icon className="h-4 w-4 mobile:h-5 mobile:w-5 shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium">{item.name}</div>
-                    {deviceInfo.isMobile && (
-                      <div className="text-xs text-muted-foreground">
-                        {item.description}
-                      </div>
-                    )}
-                  </div>
-                </Link>
-              </Button>
+                  <Link 
+                    to={item.href}
+                    onClick={onClose}
+                    className="flex items-center"
+                  >
+                    <Icon className="h-4 w-4 mobile:h-5 mobile:w-5 shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium">{item.name}</div>
+                      {deviceInfo.isMobile && (
+                        <div className="text-xs text-muted-foreground">
+                          {item.description}
+                        </div>
+                      )}
+                    </div>
+                  </Link>
+                </Button>
+              </div>
             )
           })}
         </div>
