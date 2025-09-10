@@ -4,6 +4,22 @@ import { Badge } from '../components/ui/badge';
 import { Progress } from '../components/ui/progress';
 import { Button } from '../components/ui/button';
 import { Separator } from '../components/ui/separator';
+import { 
+  Trophy, 
+  Target, 
+  TrendingUp, 
+  Gamepad2, 
+  Puzzle,
+  Users,
+  Medal,
+  Star,
+  Crown,
+  Flame,
+  Zap,
+  Globe,
+  ChevronUp,
+  Activity
+} from 'lucide-react';
 
 // Mock data for demonstration - in real app this would come from API
 const mockLeaderboardData = [
@@ -15,7 +31,7 @@ const mockLeaderboardData = [
     weeklyGames: 23,
     winRate: 78,
     streak: 12,
-    badges: ["🏆", "⚡", "🔥"],
+    badges: ["master", "lightning", "fire"],
     avatar: "👤",
     country: "🇺🇸"
   },
@@ -27,7 +43,7 @@ const mockLeaderboardData = [
     weeklyGames: 19,
     winRate: 71,
     streak: 8,
-    badges: ["🏆", "⚡"],
+    badges: ["master", "lightning"],
     avatar: "👤",
     country: "🇮🇳"
   },
@@ -39,7 +55,7 @@ const mockLeaderboardData = [
     weeklyGames: 31,
     winRate: 69,
     streak: 5,
-    badges: ["🔥", "📈"],
+    badges: ["fire", "trending"],
     avatar: "👤",
     country: "🇬🇧"
   },
@@ -51,7 +67,7 @@ const mockLeaderboardData = [
     weeklyGames: 15,
     winRate: 73,
     streak: 7,
-    badges: ["⚡"],
+    badges: ["lightning"],
     avatar: "👤",
     country: "🇩🇪"
   },
@@ -63,7 +79,7 @@ const mockLeaderboardData = [
     weeklyGames: 27,
     winRate: 66,
     streak: 3,
-    badges: ["📈"],
+    badges: ["trending"],
     avatar: "👤",
     country: "🇫🇷"
   }
@@ -77,7 +93,7 @@ const currentUserData = {
   weeklyGames: 8,
   winRate: 62,
   streak: 2,
-  badges: ["📈"],
+  badges: ["trending"],
   avatar: "👤",
   country: "🇮🇳",
   ratingChange: +23,
@@ -103,35 +119,45 @@ const LeaderboardPage: React.FC = () => {
   }, []);
 
   const getRankIcon = (rank: number) => {
-    if (rank === 1) return "🥇";
-    if (rank === 2) return "🥈";
-    if (rank === 3) return "🥉";
-    return `#${rank}`;
+    if (rank === 1) return <Crown className="w-6 h-6 text-yellow-600" aria-label="1st place" />;
+    if (rank === 2) return <Medal className="w-6 h-6 text-gray-500" aria-label="2nd place" />;
+    if (rank === 3) return <Medal className="w-6 h-6 text-amber-600" aria-label="3rd place" />;
+    return <span className="text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>#{rank}</span>;
   };
 
   const getRatingColor = (rating: number) => {
     if (rating >= 1800) return "text-purple-600 font-bold";
-    if (rating >= 1600) return "text-blue-600 font-semibold";
+    if (rating >= 1600) return "text-blue-600 font-semibold"; 
     if (rating >= 1400) return "text-green-600 font-medium";
     if (rating >= 1200) return "text-yellow-600 font-medium";
-    return ""; // Will use inline style for design token
+    return "font-medium";
+  };
+
+  const getBadgeIcon = (badge: string) => {
+    switch (badge) {
+      case 'master': return <Trophy className="w-4 h-4" aria-label="Master" />;
+      case 'lightning': return <Zap className="w-4 h-4" aria-label="Lightning fast" />;
+      case 'fire': return <Flame className="w-4 h-4" aria-label="On fire" />;
+      case 'trending': return <TrendingUp className="w-4 h-4" aria-label="Trending up" />;
+      default: return <Star className="w-4 h-4" aria-label="Achievement" />;
+    }
   };
 
   if (isLoading) {
     return (
-      <div className="py-8">
+      <div className="py-8" style={{ backgroundColor: 'var(--color-bg-base)' }}>
         <div className="max-w-6xl mx-auto px-4">
           <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-48 mb-8"></div>
+            <div className="h-8 rounded w-48 mb-8" style={{ backgroundColor: 'var(--color-surface)' }}></div>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 space-y-4">
                 {[1,2,3,4,5].map(i => (
-                  <div key={i} className="h-20 bg-gray-200 rounded"></div>
+                  <div key={i} className="h-20 rounded" style={{ backgroundColor: 'var(--color-surface)' }}></div>
                 ))}
               </div>
               <div className="space-y-4">
-                <div className="h-40 bg-gray-200 rounded"></div>
-                <div className="h-32 bg-gray-200 rounded"></div>
+                <div className="h-40 rounded" style={{ backgroundColor: 'var(--color-surface)' }}></div>
+                <div className="h-32 rounded" style={{ backgroundColor: 'var(--color-surface)' }}></div>
               </div>
             </div>
           </div>
@@ -141,91 +167,141 @@ const LeaderboardPage: React.FC = () => {
   }
 
   return (
-    <div className="py-8 min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="py-8 min-h-screen" style={{ backgroundColor: 'var(--color-bg-base)' }}>
       <div className="max-w-6xl mx-auto px-4">
-        {/* Header */}
+        {/* Header - Fixed BUG-001: High contrast heading */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            🏆 Leaderboard
+          <h1 className="text-4xl font-bold mb-3 flex items-center gap-3" style={{ color: 'var(--color-text-primary)' }}>
+            <Trophy className="w-10 h-10" style={{ color: 'var(--color-accent-primary)' }} aria-hidden="true" />
+            Leaderboard
           </h1>
-          <p style={{ color: 'var(--color-text-secondary)' }}>
+          <p className="text-lg" style={{ color: 'var(--color-text-secondary)' }}>
             Compete with chess players worldwide and climb the rankings!
           </p>
         </div>
 
-        {/* Season Info Banner */}
-        <Card className="mb-6 border-l-4 border-l-yellow-500 bg-gradient-to-r from-yellow-50 to-orange-50">
+        {/* Season Info Banner - Fixed BUG-002: Improved tournament label contrast */}
+        <Card className="mb-6 relative" style={{ 
+          backgroundColor: 'var(--color-surface-elevated)', 
+          borderLeft: '4px solid var(--color-warning)',
+          border: '1px solid var(--color-border-default)'
+        }}>
           <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-lg text-yellow-800">
-                  🎯 {seasonData.name}
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div className="flex-1 min-w-0">
+                <CardTitle className="text-lg flex items-center gap-2 mb-2" style={{ color: 'var(--color-text-primary)' }}>
+                  <Target className="w-5 h-5" style={{ color: 'var(--color-accent-primary)' }} aria-hidden="true" />
+                  {seasonData.name}
                 </CardTitle>
-                <CardDescription className="text-yellow-700">
+                <CardDescription className="text-base" style={{ color: 'var(--color-text-secondary)' }}>
                   Ends in {seasonData.endsIn} • {seasonData.totalPlayers.toLocaleString()} players competing
                 </CardDescription>
               </div>
-              <Badge variant="secondary" className="bg-yellow-200 text-yellow-800">
-                🏆 {seasonData.prize}
+              {/* Fixed BUG-002: High contrast badge with solid background */}
+              <Badge 
+                className="px-4 py-2 text-sm font-semibold whitespace-nowrap flex items-center gap-2"
+                style={{ 
+                  backgroundColor: 'var(--color-accent-primary)', 
+                  color: 'var(--color-accent-primary-contrast)',
+                  border: '1px solid var(--color-accent-primary-hover)'
+                }}
+              >
+                <Trophy className="w-4 h-4" aria-hidden="true" />
+                {seasonData.prize}
               </Badge>
             </div>
           </CardHeader>
         </Card>
 
-        {/* Tab Navigation */}
-        <div className="flex space-x-1 mb-6 bg-gray-100 p-1 rounded-lg w-fit">
+        {/* Tab Navigation - Fixed BUG-010: Clear selected state and BUG-006: Focus states */}
+        <div className="flex flex-wrap gap-2 mb-6 p-2 rounded-lg w-fit" style={{ backgroundColor: 'var(--color-surface)' }}>
           {[
-            { id: 'global', label: '🌍 Global', count: '1.2K' },
-            { id: 'friends', label: '👥 Friends', count: '12' },
-            { id: 'country', label: '🇮🇳 India', count: '247' }
-          ].map(tab => (
-            <Button
-              key={tab.id}
-              variant={selectedTab === tab.id ? "primary" : "ghost"}
-              size="sm"
-              onClick={() => setSelectedTab(tab.id)}
-              className={selectedTab === tab.id ? 'bg-white shadow-sm' : ''}
-            >
-              {tab.label} ({tab.count})
-            </Button>
-          ))}
+            { id: 'global', label: 'Global', count: '1.2K', icon: Globe },
+            { id: 'friends', label: 'Friends', count: '12', icon: Users },
+            { id: 'country', label: 'India', count: '247', icon: Activity }
+          ].map(tab => {
+            const IconComponent = tab.icon;
+            return (
+              <Button
+                key={tab.id}
+                variant={selectedTab === tab.id ? "primary" : "ghost"}
+                size="sm"
+                onClick={() => setSelectedTab(tab.id)}
+                className={`
+                  min-h-[44px] px-4 py-2 font-medium transition-all duration-200
+                  focus:outline-none focus:ring-3 focus:ring-blue-500 focus:ring-opacity-50
+                  ${selectedTab === tab.id 
+                    ? 'shadow-md transform scale-[1.02]' 
+                    : 'hover:scale-[1.01] hover:shadow-sm'
+                  }
+                `}
+                style={{
+                  backgroundColor: selectedTab === tab.id 
+                    ? 'var(--color-accent-primary)' 
+                    : 'transparent',
+                  color: selectedTab === tab.id 
+                    ? 'var(--color-accent-primary-contrast)' 
+                    : 'var(--color-text-primary)',
+                  border: selectedTab === tab.id 
+                    ? '2px solid var(--color-accent-primary-hover)' 
+                    : '2px solid transparent'
+                }}
+                aria-pressed={selectedTab === tab.id}
+              >
+                <IconComponent className="w-4 h-4 mr-2" aria-hidden="true" />
+                {tab.label} ({tab.count})
+              </Button>
+            );
+          })}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Fixed BUG-007: Responsive layout with proper stacking */}
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
           {/* Main Leaderboard */}
-          <div className="lg:col-span-2">
-            <Card>
+          <div className="xl:col-span-2 order-1">
+            <Card style={{ backgroundColor: 'var(--color-surface-elevated)', border: '1px solid var(--color-border-default)' }}>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <span className="text-xl">📊</span>
+                <CardTitle className="flex items-center gap-2 text-xl" style={{ color: 'var(--color-text-primary)' }}>
+                  <Activity className="w-6 h-6" style={{ color: 'var(--color-accent-primary)' }} aria-hidden="true" />
                   Top Players
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-base" style={{ color: 'var(--color-text-secondary)' }}>
                   This week's most active and highest-rated players
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 {mockLeaderboardData.map((player, index) => (
                   <div key={player.id}>
-                    <div className={`flex items-center justify-between p-4 rounded-lg transition-all hover:bg-gray-50 ${
-                      index < 3 ? 'bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200' : ''
-                    }`}>
-                      <div className="flex items-center space-x-4">
-                        <div className="text-2xl font-bold w-12 text-center">
+                    <div className={`
+                      flex items-center justify-between p-4 rounded-lg transition-all duration-200
+                      hover:scale-[1.01] hover:shadow-md
+                      focus-within:outline-none focus-within:ring-3 focus-within:ring-blue-500 focus-within:ring-opacity-50
+                      ${index < 3 ? 'border-2' : 'border'}
+                    `} style={{
+                      backgroundColor: index < 3 
+                        ? 'var(--color-accent-primary-subtle)' 
+                        : 'var(--color-surface)',
+                      borderColor: index < 3 
+                        ? 'var(--color-accent-primary)' 
+                        : 'var(--color-border-subtle)'
+                    }}>
+                      <div className="flex items-center space-x-4 flex-1 min-w-0">
+                        <div className="flex-shrink-0 w-12 text-center">
                           {getRankIcon(player.rank)}
                         </div>
                         
-                        <div className="flex items-center space-x-3">
-                          <div className="text-2xl">{player.avatar}</div>
-                          <div>
-                            <div className="flex items-center space-x-2">
-                              <span className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+                        <div className="flex items-center space-x-3 flex-1 min-w-0">
+                          <div className="text-2xl flex-shrink-0">{player.avatar}</div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center space-x-2 mb-1">
+                              <span className="font-semibold text-lg truncate" style={{ color: 'var(--color-text-primary)' }}>
                                 {player.name}
                               </span>
-                              <span className="text-sm">{player.country}</span>
+                              <span className="text-lg flex-shrink-0">{player.country}</span>
                             </div>
-                            <div className="flex items-center space-x-4 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-                              <span className={getRatingColor(player.rating)}>
+                            {/* Fixed BUG-001: Better contrast for secondary text */}
+                            <div className="flex items-center space-x-3 text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+                              <span className={`${getRatingColor(player.rating)} text-base`}>
                                 {player.rating} ELO
                               </span>
                               <span>•</span>
@@ -237,35 +313,60 @@ const LeaderboardPage: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="flex items-center space-x-3">
+                      <div className="flex items-center space-x-3 flex-shrink-0">
                         {player.streak > 0 && (
-                          <Badge variant="secondary" className="bg-orange-100 text-orange-800">
-                            🔥 {player.streak}
+                          <Badge 
+                            className="flex items-center gap-1 px-2 py-1 font-semibold"
+                            style={{ 
+                              backgroundColor: 'var(--color-warning-subtle)', 
+                              color: 'var(--color-warning)',
+                              border: '1px solid var(--color-warning)'
+                            }}
+                          >
+                            <Flame className="w-3 h-3" aria-hidden="true" />
+                            {player.streak}
                           </Badge>
                         )}
                         <div className="flex space-x-1">
                           {player.badges.map((badge, i) => (
-                            <span key={i} className="text-lg" title="Achievement badge">
-                              {badge}
-                            </span>
+                            <div 
+                              key={i} 
+                              className="p-1 rounded"
+                              style={{ 
+                                backgroundColor: 'var(--color-accent-primary-subtle)',
+                                color: 'var(--color-accent-primary)'
+                              }}
+                              title={`${badge} achievement`}
+                            >
+                              {getBadgeIcon(badge)}
+                            </div>
                           ))}
                         </div>
                       </div>
                     </div>
-                    {index < mockLeaderboardData.length - 1 && <Separator className="my-2" />}
+                    {index < mockLeaderboardData.length - 1 && (
+                      <Separator className="my-2" style={{ backgroundColor: 'var(--color-border-subtle)' }} />
+                    )}
                   </div>
                 ))}
               </CardContent>
             </Card>
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
+          {/* Fixed BUG-007: Sidebar with proper responsive order */}
+          <div className="space-y-6 order-2 xl:order-2">
             {/* Your Rank Card */}
-            <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50">
+            <Card 
+              className="border-2" 
+              style={{ 
+                backgroundColor: 'var(--color-surface-elevated)', 
+                borderColor: 'var(--color-accent-primary)',
+                boxShadow: 'var(--elevation-card)'
+              }}
+            >
               <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-blue-800">
-                  <span>📈</span>
+                <CardTitle className="flex items-center gap-2 text-lg" style={{ color: 'var(--color-text-primary)' }}>
+                  <TrendingUp className="w-5 h-5" style={{ color: 'var(--color-accent-primary)' }} aria-hidden="true" />
                   Your Rank
                 </CardTitle>
               </CardHeader>
@@ -274,95 +375,189 @@ const LeaderboardPage: React.FC = () => {
                   <div className="flex items-center space-x-3">
                     <div className="text-2xl">{currentUserData.avatar}</div>
                     <div>
-                      <div className="font-semibold text-blue-900">{currentUserData.name}</div>
-                      <div className="text-sm text-blue-700">Rank #{currentUserData.rank}</div>
+                      <div className="font-semibold text-lg" style={{ color: 'var(--color-text-primary)' }}>
+                        {currentUserData.name}
+                      </div>
+                      <div className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+                        Rank #{currentUserData.rank}
+                      </div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className={`text-lg font-bold ${getRatingColor(currentUserData.rating)}`}>
+                    <div className={`text-xl font-bold ${getRatingColor(currentUserData.rating)}`}>
                       {currentUserData.rating}
                     </div>
-                    <div className="text-xs text-green-600 font-medium">
+                    <div className="text-sm font-medium flex items-center gap-1" style={{ color: 'var(--color-success)' }}>
+                      <ChevronUp className="w-3 h-3" aria-hidden="true" />
                       +{currentUserData.ratingChange} this week
                     </div>
                   </div>
                 </div>
 
-                <div className="space-y-2">
+                {/* Fixed BUG-012: Improved progress bar contrast and visibility */}
+                <div className="space-y-3">
                   <div className="flex justify-between text-sm">
-                    <span>Progress to {currentUserData.nextMilestone}</span>
-                    <span className="font-medium">{currentUserData.progressToNext}%</span>
+                    <span className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
+                      Progress to {currentUserData.nextMilestone}
+                    </span>
+                    <span className="font-bold text-base" style={{ color: 'var(--color-accent-primary)' }}>
+                      {currentUserData.progressToNext}%
+                    </span>
                   </div>
-                  <Progress value={currentUserData.progressToNext} className="h-2" />
+                  <div 
+                    className="w-full rounded-full h-3 relative overflow-hidden"
+                    style={{ backgroundColor: 'var(--color-surface)' }}
+                  >
+                    <div 
+                      className="h-full rounded-full transition-all duration-500 ease-out relative"
+                      style={{ 
+                        width: `${currentUserData.progressToNext}%`,
+                        backgroundColor: 'var(--color-accent-primary)',
+                        boxShadow: '0 0 10px rgba(59, 130, 246, 0.3)'
+                      }}
+                    />
+                  </div>
                 </div>
 
+                {/* Fixed BUG-014: Improved microcopy contrast and size */}
                 <div className="grid grid-cols-3 gap-3 text-center">
                   <div>
-                    <div className="text-lg font-bold text-blue-600">{currentUserData.weeklyGames}</div>
-                    <div className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>Games</div>
+                    <div className="text-xl font-bold" style={{ color: 'var(--color-accent-primary)' }}>
+                      {currentUserData.weeklyGames}
+                    </div>
+                    <div className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+                      Games
+                    </div>
                   </div>
                   <div>
-                    <div className="text-lg font-bold text-green-600">{currentUserData.winRate}%</div>
-                    <div className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>Win Rate</div>
+                    <div className="text-xl font-bold" style={{ color: 'var(--color-success)' }}>
+                      {currentUserData.winRate}%
+                    </div>
+                    <div className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+                      Win Rate
+                    </div>
                   </div>
                   <div>
-                    <div className="text-lg font-bold text-orange-600">{currentUserData.streak}</div>
-                    <div className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>Streak</div>
+                    <div className="text-xl font-bold" style={{ color: 'var(--color-warning)' }}>
+                      {currentUserData.streak}
+                    </div>
+                    <div className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+                      Streak
+                    </div>
                   </div>
                 </div>
 
                 {currentUserData.badges.length > 0 && (
-                  <div className="flex justify-center space-x-1 pt-2 border-t border-blue-200">
-                    <span className="text-sm text-blue-700 mr-2">Badges:</span>
+                  <div className="flex justify-center items-center gap-2 pt-3 border-t" style={{ borderColor: 'var(--color-border-subtle)' }}>
+                    <span className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+                      Badges:
+                    </span>
                     {currentUserData.badges.map((badge, i) => (
-                      <span key={i} className="text-lg">{badge}</span>
+                      <div 
+                        key={i} 
+                        className="p-1 rounded"
+                        style={{ 
+                          backgroundColor: 'var(--color-accent-primary-subtle)',
+                          color: 'var(--color-accent-primary)'
+                        }}
+                      >
+                        {getBadgeIcon(badge)}
+                      </div>
                     ))}
                   </div>
                 )}
               </CardContent>
             </Card>
 
-            {/* Quick Actions */}
-            <Card>
+            {/* Fixed BUG-005: Improved button affordances */}
+            <Card style={{ backgroundColor: 'var(--color-surface-elevated)', border: '1px solid var(--color-border-default)' }}>
               <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2">
-                  <span>⚡</span>
+                <CardTitle className="flex items-center gap-2 text-lg" style={{ color: 'var(--color-text-primary)' }}>
+                  <Zap className="w-5 h-5" style={{ color: 'var(--color-accent-primary)' }} aria-hidden="true" />
                   Quick Actions
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button className="w-full" size="sm">
-                  🎯 Play Rated Game
+                {/* Primary action with filled button */}
+                <Button 
+                  className="w-full min-h-[44px] font-semibold text-base transition-all duration-200 
+                    focus:outline-none focus:ring-3 focus:ring-blue-500 focus:ring-opacity-50
+                    hover:scale-[1.02] hover:shadow-md"
+                  size="lg"
+                  style={{
+                    backgroundColor: 'var(--color-accent-primary)',
+                    color: 'var(--color-accent-primary-contrast)',
+                    border: '2px solid var(--color-accent-primary-hover)'
+                  }}
+                >
+                  <Gamepad2 className="w-5 h-5 mr-2" aria-hidden="true" />
+                  Play Rated Game
                 </Button>
-                <Button variant="outline" className="w-full" size="sm">
-                  🧩 Solve Puzzles
+                {/* Secondary actions with outlined buttons */}
+                <Button 
+                  variant="outline" 
+                  className="w-full min-h-[44px] font-medium text-base transition-all duration-200
+                    focus:outline-none focus:ring-3 focus:ring-blue-500 focus:ring-opacity-50
+                    hover:scale-[1.01] hover:shadow-sm"
+                  size="lg"
+                  style={{
+                    backgroundColor: 'transparent',
+                    color: 'var(--color-text-primary)',
+                    borderColor: 'var(--color-border-default)',
+                    borderWidth: '2px'
+                  }}
+                >
+                  <Puzzle className="w-5 h-5 mr-2" aria-hidden="true" />
+                  Solve Puzzles
                 </Button>
-                <Button variant="outline" className="w-full" size="sm">
-                  👥 Challenge Friend
+                <Button 
+                  variant="outline" 
+                  className="w-full min-h-[44px] font-medium text-base transition-all duration-200
+                    focus:outline-none focus:ring-3 focus:ring-blue-500 focus:ring-opacity-50
+                    hover:scale-[1.01] hover:shadow-sm"
+                  size="lg"
+                  style={{
+                    backgroundColor: 'transparent',
+                    color: 'var(--color-text-primary)',
+                    borderColor: 'var(--color-border-default)',
+                    borderWidth: '2px'
+                  }}
+                >
+                  <Users className="w-5 h-5 mr-2" aria-hidden="true" />
+                  Challenge Friend
                 </Button>
               </CardContent>
             </Card>
 
             {/* Recent Achievements */}
-            <Card>
+            <Card style={{ backgroundColor: 'var(--color-surface-elevated)', border: '1px solid var(--color-border-default)' }}>
               <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2">
-                  <span>🏆</span>
+                <CardTitle className="flex items-center gap-2 text-lg" style={{ color: 'var(--color-text-primary)' }}>
+                  <Trophy className="w-5 h-5" style={{ color: 'var(--color-accent-primary)' }} aria-hidden="true" />
                   Recent Achievements
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2">
-                <div className="flex items-center space-x-2 p-2 bg-yellow-50 rounded text-sm">
-                  <span>🔥</span>
-                  <span>5-game win streak!</span>
+              <CardContent className="space-y-3">
+                <div 
+                  className="flex items-center space-x-3 p-3 rounded-lg font-medium"
+                  style={{ backgroundColor: 'var(--color-warning-subtle)' }}
+                >
+                  <Flame className="w-5 h-5 flex-shrink-0" style={{ color: 'var(--color-warning)' }} aria-hidden="true" />
+                  <span style={{ color: 'var(--color-text-primary)' }}>5-game win streak!</span>
                 </div>
-                <div className="flex items-center space-x-2 p-2 bg-blue-50 rounded text-sm">
-                  <span>📈</span>
-                  <span>Rating milestone: 1200+</span>
+                <div 
+                  className="flex items-center space-x-3 p-3 rounded-lg font-medium"
+                  style={{ backgroundColor: 'var(--color-accent-primary-subtle)' }}
+                >
+                  <TrendingUp className="w-5 h-5 flex-shrink-0" style={{ color: 'var(--color-accent-primary)' }} aria-hidden="true" />
+                  <span style={{ color: 'var(--color-text-primary)' }}>Rating milestone: 1200+</span>
                 </div>
-                <div className="flex items-center space-x-2 p-2 bg-green-50 rounded text-sm">
-                  <span>🧩</span>
-                  <span>100 puzzles solved</span>
+                <div 
+                  className="flex items-center space-x-3 p-3 rounded-lg font-medium"
+                  style={{ backgroundColor: 'var(--color-success-subtle)' }}
+                >
+                  <Puzzle className="w-5 h-5 flex-shrink-0" style={{ color: 'var(--color-success)' }} aria-hidden="true" />
+                  <span style={{ color: 'var(--color-text-primary)' }}>100 puzzles solved</span>
                 </div>
               </CardContent>
             </Card>
