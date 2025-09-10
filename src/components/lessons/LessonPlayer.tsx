@@ -1199,9 +1199,9 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-bg-base)' }}>
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="shadow-sm border-b" style={{ backgroundColor: 'var(--color-surface-elevated)', borderColor: 'var(--color-border-default)' }}>
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-4">

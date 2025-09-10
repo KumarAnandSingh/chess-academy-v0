@@ -180,11 +180,11 @@ export const ChessLesson: React.FC<ChessLessonProps> = ({
             Congratulations on completing "{lesson.title}"
           </p>
           <div className="grid grid-cols-2 gap-4 max-w-md mx-auto mb-6">
-            <div className="bg-white p-4 rounded-lg">
+            <div className="p-4 rounded-lg" style={{ backgroundColor: 'var(--color-surface-elevated)' }}>
               <div className="text-2xl font-bold text-green-600">{score}</div>
               <div className="text-sm text-gray-600">Points Earned</div>
             </div>
-            <div className="bg-white p-4 rounded-lg">
+            <div className="p-4 rounded-lg" style={{ backgroundColor: 'var(--color-surface-elevated)' }}>
               <div className="text-2xl font-bold text-blue-600">
                 {Math.floor((Date.now() - startTime) / 1000 / 60)}m
               </div>

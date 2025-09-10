@@ -6,6 +6,19 @@ import { PieceTooltip } from './PieceTooltip';
 import { HelpSystem } from './HelpSystem';
 import { VibrationEffect, CelebrationNudge, IllegalMoveWarning, MoveQuality, Confetti } from '../ui/GamificationEffects';
 
+interface MoveArrow {
+  from: string;
+  to: string;
+  color: 'green' | 'blue' | 'red' | 'yellow' | 'orange';
+  style?: 'solid' | 'dashed' | 'dotted';
+}
+
+interface GuidanceTooltip {
+  square: string;
+  message: string;
+  type: 'hint' | 'instruction' | 'warning' | 'success';
+}
+
 interface ChessBoardProps {
   fen?: string;
   orientation?: 'white' | 'black';
@@ -24,6 +37,22 @@ interface ChessBoardProps {
   showPieceTooltips?: boolean;
   enableGamification?: boolean;
   lessonMode?: boolean;
+  
+  // 🎯 Guided Learning Enhancements
+  moveArrows?: MoveArrow[];
+  guidanceHighlights?: Array<{
+    square: string;
+    color: 'suggest' | 'require' | 'avoid' | 'good' | 'bad';
+    animation?: 'pulse' | 'glow' | 'bounce' | 'none';
+  }>;
+  restrictedMoves?: string[]; // Only these moves allowed
+  onMoveAttempt?: (move: { from: string; to: string }) => 'allowed' | 'hint' | 'blocked' | 'wrong-piece';
+  guidanceTooltip?: GuidanceTooltip;
+  stepExplanation?: {
+    title: string;
+    description: string;
+    position: 'top' | 'bottom' | 'left' | 'right';
+  };
 }
 
 export const ChessBoard: React.FC<ChessBoardProps> = ({
@@ -44,6 +73,14 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
   showPieceTooltips = true,
   enableGamification = true,
   lessonMode = false,
+  
+  // 🎯 Guided Learning Props
+  moveArrows = [],
+  guidanceHighlights = [],
+  restrictedMoves,
+  onMoveAttempt,
+  guidanceTooltip,
+  stepExplanation,
 }) => {
   // Use parent's FEN as the single source of truth - no internal game state
   const game = useMemo(() => new Chess(initialFen || undefined), [initialFen]);
@@ -71,6 +108,46 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
     show: boolean;
     quality: 'blunder' | 'mistake' | 'inaccuracy' | 'good' | 'excellent' | 'brilliant';
   }>({ show: false, quality: 'good' });
+
+  // 🎯 Helper to merge guidance highlights with option squares
+  const getMergedSquareStyles = useCallback(() => {
+    const merged = { ...optionSquares };
+    
+    // Add guidance highlights
+    guidanceHighlights.forEach(highlight => {
+      const baseStyle = merged[highlight.square] || {};
+      const guidanceStyles = {
+        suggest: { 
+          background: 'var(--color-board-legal-move)',
+          border: '3px solid var(--color-accent-primary)'
+        },
+        require: { 
+          background: 'var(--color-success-subtle)',
+          border: '3px solid var(--color-success)',
+          boxShadow: '0 0 15px var(--color-success-subtle)'
+        },
+        avoid: { 
+          background: 'var(--color-danger-subtle)',
+          border: '3px solid var(--color-danger)'
+        },
+        good: { 
+          background: 'var(--color-success-subtle)',
+          border: '3px solid var(--color-success)'
+        },
+        bad: { 
+          background: 'var(--color-warning-subtle)',
+          border: '3px solid var(--color-warning)'
+        }
+      };
+      
+      merged[highlight.square] = {
+        ...baseStyle,
+        ...guidanceStyles[highlight.color]
+      };
+    });
+    
+    return merged;
+  }, [optionSquares, guidanceHighlights]);
 
   const resetSelection = useCallback(() => {
     setMoveFrom(null);
@@ -195,16 +272,16 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
           moves.forEach((move) => {
             newSquares[move.to] = {
               background: `
-                radial-gradient(circle, #10B981 25%, transparent 25%),
-                radial-gradient(circle, rgba(0,0,0,.1) 85%, transparent 85%)
+                radial-gradient(circle, var(--color-success) 25%, transparent 25%),
+                radial-gradient(circle, var(--color-surface-overlay) 85%, transparent 85%)
               `,
               borderRadius: '50%',
             };
           });
           newSquares[square] = { 
-            background: 'rgba(255, 255, 0, 0.4)',
-            border: '2px solid #FFD700',
-            boxShadow: '0 0 10px rgba(255, 215, 0, 0.5)'
+            background: 'var(--color-board-highlight)',
+            border: '2px solid var(--color-accent-primary)',
+            boxShadow: '0 0 10px var(--color-accent-subtle)'
           };
           setOptionSquares(newSquares);
         }
@@ -240,10 +317,39 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
     return success;
   }, [disabled]);
 
-  // FIXED: Purely controlled move validation - parent handles all game state
+  // ENHANCED: Move validation with guided learning support
   const attemptMove = useCallback((from: Square, to: Square, promotion = 'q') => {
     try {
       console.log('ChessBoard: Validating move', from, to, promotion);
+      
+      // 🎯 Guided Learning: Check if move is in restricted moves list
+      if (restrictedMoves && restrictedMoves.length > 0) {
+        const moveStr = `${from}${to}`;
+        if (!restrictedMoves.includes(moveStr)) {
+          // Call guidance callback for feedback
+          const guidance = onMoveAttempt?.({ from, to });
+          
+          if (guidance === 'blocked') {
+            if (enableGamification) {
+              setShowIllegalMove(true);
+              setTimeout(() => setShowIllegalMove(false), 1500);
+            }
+            resetSelection();
+            return false;
+          } else if (guidance === 'hint') {
+            // Show hint but don't make the move
+            setHintMessage('Try a different move - look for the highlighted squares!');
+            setTimeout(() => setHintMessage(''), 3000);
+            resetSelection();
+            return false;
+          } else if (guidance === 'wrong-piece') {
+            setHintMessage('Try moving the highlighted piece instead!');
+            setTimeout(() => setHintMessage(''), 3000);
+            resetSelection();
+            return false;
+          }
+        }
+      }
       
       // Check if this move requires promotion
       const moves = game.moves({ square: from, verbose: true });
@@ -290,6 +396,9 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
         }
       }
 
+      // 🎯 Guided Learning: Notify guidance callback of successful move
+      onMoveAttempt?.({ from, to });
+
       // Notify parent to handle the actual move and all state changes
       onMove?.({ from, to, promotion });
       return true;
@@ -299,7 +408,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
       resetSelection();
       return false;
     }
-  }, [game, resetSelection, puzzleMode, correctMoves, onCorrectMove, onIncorrectMove, onMove]);
+  }, [game, resetSelection, puzzleMode, correctMoves, onCorrectMove, onIncorrectMove, onMove, restrictedMoves, onMoveAttempt]);
 
   // FIXED: Handle promotion piece selection
   const onPromotionPieceSelect = useCallback((piece?: string) => {
@@ -329,16 +438,12 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
     <VibrationEffect show={showIllegalMove}>
       <div className="chess-board-container relative w-full">
         <div 
-          className="relative w-full max-w-full"
+          className="relative w-full max-w-full rounded-lg p-2"
           style={{
-            background: 'linear-gradient(145deg, #f0f0f0, #e0e0e0)',
-            borderRadius: '12px',
-            padding: '8px',
-            boxShadow: `
-              0 8px 32px rgba(0, 0, 0, 0.1),
-              inset 0 2px 4px rgba(255, 255, 255, 0.3)
-            `,
             aspectRatio: '1',
+            backgroundColor: 'var(--color-surface-elevated)',
+            border: '1px solid var(--color-border-default)',
+            boxShadow: 'var(--elevation-card)'
           }}
         >
           <div 
@@ -378,12 +483,19 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
                 onSquareClick: onSquareClick,
                 onPieceDrop: onPieceDrop,
                 boardOrientation: orientation,
-                squareStyles: optionSquares,
+                squareStyles: getMergedSquareStyles(),
                 allowDragging: !disabled,
-                animationDurationInMs: 200,
+                animationDurationInMs: 300,
                 boardStyle: {
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)',
+                  borderRadius: '14px',
+                  boxShadow: 'var(--elevation-card)',
+                  border: '1px solid var(--color-border-default)',
+                },
+                lightSquareStyle: {
+                  backgroundColor: 'var(--color-board-light)',
+                },
+                darkSquareStyle: {
+                  backgroundColor: 'var(--color-board-dark)',
                 },
               }}
             />
@@ -392,10 +504,10 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
           {/* Coordinates and status display */}
           {showCoordinates && (
             <div className="absolute -bottom-8 left-0 right-0 text-center">
-              <div className="text-sm text-gray-600">
+              <div className="text-sm font-secondary" style={{ color: 'var(--color-text-secondary)' }}>
                 Turn: {game.turn() === 'w' ? 'White' : 'Black'}
-                {game.isCheck() && ' | Check!'}
-                {game.isGameOver() && ' | Game Over!'}
+                {game.isCheck() && <span className="text-warning font-medium"> | Check!</span>}
+                {game.isGameOver() && <span className="text-danger font-medium"> | Game Over!</span>}
               </div>
             </div>
           )}
@@ -403,7 +515,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
           {/* Hint message display */}
           {hintMessage && (
             <div className="absolute -top-12 left-0 right-0 text-center">
-              <div className="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium">
+              <div className="bg-accent text-white px-4 py-2 rounded-lg text-sm font-medium shadow-card font-secondary">
                 💡 {hintMessage}
               </div>
             </div>
@@ -421,6 +533,146 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
               />
             </div>
           )}
+
+          {/* 🎯 Guided Learning: Enhanced Square Highlights */}
+          {guidanceHighlights.length > 0 && (
+            <div className="absolute inset-0 pointer-events-none">
+              {guidanceHighlights.map((highlight, index) => {
+                const file = highlight.square.charCodeAt(0) - 97;
+                const rank = parseInt(highlight.square[1]) - 1;
+                const squareSize = 100 / 8; // Each square is 1/8th of the board
+                
+                const colorStyles = {
+                  suggest: 'border-blue-400 bg-blue-200 bg-opacity-40',
+                  require: 'border-green-500 bg-green-300 bg-opacity-60',
+                  avoid: 'border-red-500 bg-red-200 bg-opacity-40',
+                  good: 'border-emerald-400 bg-emerald-200 bg-opacity-50',
+                  bad: 'border-orange-500 bg-orange-200 bg-opacity-40'
+                };
+
+                const animationStyles = {
+                  pulse: 'animate-pulse',
+                  glow: 'shadow-lg shadow-current',
+                  bounce: 'animate-bounce',
+                  none: ''
+                };
+
+                return (
+                  <div
+                    key={`guidance-${index}`}
+                    className={`absolute border-4 rounded ${colorStyles[highlight.color]} ${animationStyles[highlight.animation || 'none']}`}
+                    style={{
+                      left: `${file * squareSize}%`,
+                      top: `${(7 - rank) * squareSize}%`,
+                      width: `${squareSize}%`,
+                      height: `${squareSize}%`,
+                    }}
+                  />
+                );
+              })}
+            </div>
+          )}
+
+          {/* 🎯 Guided Learning: Move Arrows */}
+          {moveArrows.length > 0 && (
+            <div className="absolute inset-0 pointer-events-none">
+              <svg className="w-full h-full">
+                {moveArrows.map((arrow, index) => {
+                  const fromFile = arrow.from.charCodeAt(0) - 97;
+                  const fromRank = parseInt(arrow.from[1]) - 1;
+                  const toFile = arrow.to.charCodeAt(0) - 97;
+                  const toRank = parseInt(arrow.to[1]) - 1;
+                  
+                  const squareSize = 100 / 8;
+                  const centerOffset = squareSize / 2;
+                  
+                  const x1 = fromFile * squareSize + centerOffset;
+                  const y1 = (7 - fromRank) * squareSize + centerOffset;
+                  const x2 = toFile * squareSize + centerOffset;
+                  const y2 = (7 - toRank) * squareSize + centerOffset;
+
+                  const arrowColors = {
+                    green: 'var(--color-success)',
+                    blue: 'var(--color-accent-primary)', 
+                    red: 'var(--color-danger)',
+                    yellow: 'var(--color-warning)',
+                    orange: '#F97316'
+                  };
+
+                  return (
+                    <g key={`arrow-${index}`}>
+                      {/* Arrow line */}
+                      <line
+                        x1={`${x1}%`}
+                        y1={`${y1}%`}
+                        x2={`${x2}%`}
+                        y2={`${y2}%`}
+                        stroke={arrowColors[arrow.color]}
+                        strokeWidth="3"
+                        strokeDasharray={arrow.style === 'dashed' ? '10 5' : arrow.style === 'dotted' ? '3 3' : 'none'}
+                        markerEnd="url(#arrowhead)"
+                      />
+                      {/* Arrowhead marker */}
+                      <defs>
+                        <marker
+                          id="arrowhead"
+                          markerWidth="10"
+                          markerHeight="7"
+                          refX="9"
+                          refY="3.5"
+                          orient="auto"
+                        >
+                          <polygon
+                            points="0 0, 10 3.5, 0 7"
+                            fill={arrowColors[arrow.color]}
+                          />
+                        </marker>
+                      </defs>
+                    </g>
+                  );
+                })}
+              </svg>
+            </div>
+          )}
+
+          {/* 🎯 Guided Learning: Guidance Tooltip */}
+          {guidanceTooltip && (
+            <div className="absolute inset-0 pointer-events-none">
+              {(() => {
+                const file = guidanceTooltip.square.charCodeAt(0) - 97;
+                const rank = parseInt(guidanceTooltip.square[1]) - 1;
+                const squareSize = 100 / 8;
+                
+                const tooltipStyles = {
+                  hint: 'bg-accent text-white',
+                  instruction: 'bg-success text-white',
+                  warning: 'bg-danger text-white',
+                  success: 'bg-success text-white'
+                };
+
+                return (
+                  <div
+                    className={`absolute z-20 px-3 py-2 rounded-lg shadow-lg text-sm font-medium ${tooltipStyles[guidanceTooltip.type]} pointer-events-none`}
+                    style={{
+                      left: `${file * squareSize + squareSize/2}%`,
+                      top: `${(7 - rank) * squareSize - 10}%`,
+                      transform: 'translateX(-50%) translateY(-100%)',
+                    }}
+                  >
+                    {guidanceTooltip.message}
+                    <div 
+                      className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent"
+                      style={{
+                        borderTopColor: guidanceTooltip.type === 'hint' ? '#3B82F6' : 
+                                       guidanceTooltip.type === 'instruction' ? '#10B981' :
+                                       guidanceTooltip.type === 'warning' ? '#EF4444' : '#059669'
+                      }}
+                    />
+                  </div>
+                );
+              })()}
+            </div>
+          )}
         </div>
 
         {/* Help System */}
@@ -432,6 +684,41 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
               onShowHint={handleShowHint}
               disabled={disabled}
             />
+          </div>
+        )}
+
+        {/* 🎯 Guided Learning: Step Explanation Panel */}
+        {stepExplanation && (
+          <div className={`mt-4 ${
+            stepExplanation.position === 'top' ? '-mt-8 mb-4' :
+            stepExplanation.position === 'bottom' ? 'mt-4' :
+            stepExplanation.position === 'left' ? 'absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-full mr-4 w-64' :
+            'absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-full ml-4 w-64'
+          }`}>
+            <div 
+              className="text-white rounded-lg p-4"
+              style={{
+                backgroundColor: 'var(--color-accent-primary)',
+                boxShadow: 'var(--elevation-card)'
+              }}
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xl">🎯</span>
+                <h3 className="font-bold text-lg font-primary">{stepExplanation.title}</h3>
+              </div>
+              <p className="text-white/90 leading-relaxed font-secondary">{stepExplanation.description}</p>
+              
+              {/* Arrow pointer for side panels */}
+              {(stepExplanation.position === 'left' || stepExplanation.position === 'right') && (
+                <div 
+                  className={`absolute top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-8 border-b-8 border-transparent ${
+                    stepExplanation.position === 'left' 
+                      ? 'right-0 translate-x-full border-l-8 border-accent' 
+                      : 'left-0 -translate-x-full border-r-8 border-accent'
+                  }`}
+                />
+              )}
+            </div>
           </div>
         )}
 
@@ -465,3 +752,6 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
     </VibrationEffect>
   );
 };
+
+// Export guided learning types for use in other components
+export type { MoveArrow, GuidanceTooltip };

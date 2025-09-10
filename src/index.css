@@ -1,4 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
+@import "./styles/design-tokens.css";
 
 /* Chess Academy Custom Styles */
 @layer base {
@@ -7,21 +9,12 @@
     --chess-board-size: min(90vw, 640px);
     --chess-square-size: calc(var(--chess-board-size) / 8);
   }
-  
-  html {
-    font-family: 'Inter', system-ui, sans-serif;
-  }
-  
-  body {
-    margin: 0;
-    min-height: 100vh;
-  }
 }
 
 /* Custom animations */
 @layer utilities {
   .chess-piece {
-    transition: all 0.3s ease;
+    transition: all var(--duration-normal) var(--ease-premium);
     cursor: pointer;
   }
 
@@ -30,7 +23,7 @@
   }
 
   .chess-square-highlight {
-    box-shadow: inset 0 0 0 4px #f7ec74;
+    box-shadow: inset 0 0 0 4px var(--color-board-highlight);
   }
 
   .chess-square-valid-move {
@@ -44,24 +37,24 @@
     left: 50%;
     width: 30%;
     height: 30%;
-    background-color: rgba(143, 188, 143, 0.8);
+    background-color: var(--color-board-legal-move);
     border-radius: 50%;
     transform: translate(-50%, -50%);
   }
 
   .chess-square-capture {
-    box-shadow: inset 0 0 0 4px #ff6b6b;
+    box-shadow: inset 0 0 0 4px var(--color-board-capture);
   }
 
   /* XP Bar Animation */
   .xp-fill {
-    background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-    transition: width 1s ease-out;
+    background: linear-gradient(90deg, var(--color-accent-primary), var(--color-accent-primary-hover));
+    transition: width var(--duration-slower) var(--ease-out-cubic);
   }
 
   /* Achievement Unlock Animation */
   .achievement-unlock {
-    animation: achievement-pulse 0.6s ease-out;
+    animation: achievement-pulse var(--duration-slowest) var(--ease-bounce);
   }
 
   @keyframes achievement-pulse {
@@ -72,7 +65,7 @@
 
   /* Streak Animation */
   .streak-animation {
-    animation: streak-bounce 0.8s ease-out;
+    animation: streak-bounce var(--duration-slower) var(--ease-bounce);
   }
 
   @keyframes streak-bounce {
@@ -84,19 +77,19 @@
   /* Loading animations */
   .loading-dots {
     display: inline-flex;
-    gap: 4px;
+    gap: var(--space-1);
   }
 
   .loading-dots > div {
-    width: 8px;
-    height: 8px;
+    width: var(--space-2);
+    height: var(--space-2);
     background-color: currentColor;
-    border-radius: 50%;
-    animation: loading-bounce 1.4s ease-in-out infinite both;
+    border-radius: var(--radius-full);
+    animation: loading-bounce var(--duration-slower) var(--ease-premium) infinite both;
   }
 
-  .loading-dots > div:nth-child(1) { animation-delay: -0.32s; }
-  .loading-dots > div:nth-child(2) { animation-delay: -0.16s; }
+  .loading-dots > div:nth-child(1) { animation-delay: calc(var(--duration-fast) * -2); }
+  .loading-dots > div:nth-child(2) { animation-delay: calc(var(--duration-fast) * -1); }
   .loading-dots > div:nth-child(3) { animation-delay: 0; }
 
   @keyframes loading-bounce {

@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useThemeStore } from './stores/themeStore';
 
 // Layout components
 import Layout from './components/ui/Layout';
@@ -15,9 +16,27 @@ import ProfilePage from './pages/ProfilePage';
 import LeaderboardPage from './pages/LeaderboardPage';
 import SettingsPage from './pages/SettingsPage';
 import DebugPage from './pages/DebugPage';
+import Phase0Demo from './pages/Phase0Demo';
+import StrengthAssessmentPage from './pages/StrengthAssessmentPage';
+
+// Auth components
+import { GoogleCallback } from './components/auth/GoogleCallback';
+import { AuthSuccess } from './components/auth/AuthSuccess';
 
 // Stores and providers
 import { AuthProvider } from './components/auth/AuthProvider';
+
+// Theme initialization component
+const ThemeInitializer: React.FC = () => {
+  const { theme } = useThemeStore();
+  
+  useEffect(() => {
+    // Apply theme to document on mount and theme changes
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
+  
+  return null;
+};
 
 // Create a client for React Query
 const queryClient = new QueryClient({
@@ -31,93 +50,134 @@ const queryClient = new QueryClient({
   },
 });
 
-// Simple wrapper component - no authentication needed
-const AppRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  return <>{children}</>;
+// Import ProtectedRoute for authentication
+import { ProtectedRoute, PublicRoute } from './components/auth/ProtectedRoute';
+
+// Wrapper components for different route types
+const AuthRequiredRoute: React.FC<{ children: React.ReactNode; featureName?: string }> = ({ 
+  children, 
+  featureName 
+}) => {
+  return (
+    <ProtectedRoute requireAuth={true} featureName={featureName}>
+      {children}
+    </ProtectedRoute>
+  );
+};
+
+const PublicAppRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  return (
+    <PublicRoute>
+      {children}
+    </PublicRoute>
+  );
 };
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
+        <ThemeInitializer />
         <Router>
-        <div className="min-h-screen bg-background">
+        <div className="app-container">
           <Routes>
             {/* Home Route - redirects to dashboard */}
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-            {/* Main App Routes - No authentication needed */}
+            {/* Public Dashboard - No authentication needed */}
             <Route path="/dashboard" element={
-              <AppRoute>
+              <PublicAppRoute>
                 <Layout>
                   <DashboardPage />
                 </Layout>
-              </AppRoute>
+              </PublicAppRoute>
             } />
             
+            {/* Public Lesson Routes - Guest access allowed, login for progress saving */}
             <Route path="/lessons" element={
-              <AppRoute>
+              <PublicAppRoute>
                 <Layout>
                   <LessonsPage />
                 </Layout>
-              </AppRoute>
+              </PublicAppRoute>
             } />
             
             <Route path="/lessons/:lessonId" element={
-              <AppRoute>
+              <PublicAppRoute>
                 <Layout>
                   <LessonPage />
                 </Layout>
-              </AppRoute>
+              </PublicAppRoute>
             } />
             
+            {/* Public Puzzles Route - Guest access allowed, login for progress saving */}
             <Route path="/puzzles" element={
-              <AppRoute>
+              <PublicAppRoute>
                 <Layout>
                   <PuzzlesPage />
                 </Layout>
-              </AppRoute>
+              </PublicAppRoute>
             } />
             
+            {/* Public Play Route - Guest access allowed, login for game history */}
             <Route path="/play" element={
-              <AppRoute>
+              <PublicAppRoute>
                 <Layout>
                   <PlayComputerPage />
                 </Layout>
-              </AppRoute>
+              </PublicAppRoute>
             } />
             
+            {/* Protected Profile Route - Authentication Required */}
             <Route path="/profile" element={
-              <AppRoute>
+              <AuthRequiredRoute featureName="your profile">
                 <Layout>
                   <ProfilePage />
                 </Layout>
-              </AppRoute>
+              </AuthRequiredRoute>
             } />
             
+            {/* Public Leaderboard - No authentication needed */}
             <Route path="/leaderboard" element={
-              <AppRoute>
+              <PublicAppRoute>
                 <Layout>
                   <LeaderboardPage />
                 </Layout>
-              </AppRoute>
+              </PublicAppRoute>
             } />
             
+            {/* Protected Settings Route - Authentication Required */}
             <Route path="/settings" element={
-              <AppRoute>
+              <AuthRequiredRoute featureName="settings">
                 <Layout>
                   <SettingsPage />
                 </Layout>
-              </AppRoute>
+              </AuthRequiredRoute>
             } />
             
             <Route path="/debug" element={
-              <AppRoute>
+              <PublicAppRoute>
                 <Layout>
                   <DebugPage />
                 </Layout>
-              </AppRoute>
+              </PublicAppRoute>
             } />
+
+            <Route path="/phase0" element={
+              <PublicAppRoute>
+                <Phase0Demo />
+              </PublicAppRoute>
+            } />
+
+            <Route path="/strength-assessment" element={
+              <PublicAppRoute>
+                <StrengthAssessmentPage />
+              </PublicAppRoute>
+            } />
+
+            {/* Auth routes */}
+            <Route path="/auth/callback" element={<GoogleCallback />} />
+            <Route path="/auth/success" element={<AuthSuccess />} />
 
             {/* Catch all route */}
             <Route path="*" element={<Navigate to="/dashboard" replace />} />

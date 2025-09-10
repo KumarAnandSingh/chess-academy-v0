@@ -164,7 +164,7 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({
         <Button
           onClick={handleHelpClick}
           disabled={!isHelpAvailable}
-          variant={showHelp ? "default" : "outline"}
+          variant={showHelp ? "primary" : "outline"}
           size="sm"
           className={`${showHelp ? 'animate-bounce' : ''} ${
             !isHelpAvailable ? 'opacity-50 cursor-not-allowed' : ''

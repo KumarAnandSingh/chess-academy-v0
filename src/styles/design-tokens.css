@@ -1,0 +1,317 @@
+/**
+ * Premium Chess Academy Design Tokens
+ * Based on Figma Auto Layout, Variables, and Component Properties
+ * Designed for commercial-grade premium UI/UX
+ */
+
+/* ===========================================
+   🎨 COLOR TOKENS (Figma Variables)
+   =========================================== */
+
+:root {
+  /* DARK THEME (Primary) */
+  --color-bg-base: #0E1116;
+  --color-bg-alt: #0F172A;
+  --color-surface: #131822;
+  --color-surface-elevated: #1A212C;
+  --color-surface-overlay: #212936;
+  
+  /* TEXT HIERARCHY - WCAG AAA Compliant */
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #E2E8F0;
+  --color-text-muted: #CBD5E1;
+  --color-text-disabled: #94A3B8;
+  --color-text-inverse: #0F172A;
+  
+  /* ACCENT SYSTEM */
+  --color-accent-primary: #7C5CFF;
+  --color-accent-primary-hover: #6A4BFF;
+  --color-accent-primary-pressed: #5A3FE3;
+  --color-accent-primary-subtle: rgba(124, 92, 255, 0.12);
+  
+  /* SEMANTIC COLORS */
+  --color-success: #22C55E;
+  --color-success-subtle: rgba(34, 197, 94, 0.12);
+  --color-warning: #F59E0B;
+  --color-warning-subtle: rgba(245, 158, 11, 0.12);
+  --color-danger: #EF4444;
+  --color-danger-subtle: rgba(239, 68, 68, 0.12);
+  
+  /* CHESS BOARD COLORS - Enhanced Contrast */
+  --color-board-light: #F0F4F8;
+  --color-board-dark: #475569;
+  --color-board-highlight: rgba(124, 92, 255, 0.3);
+  --color-board-legal-move: rgba(34, 197, 94, 0.25);
+  --color-board-capture: rgba(239, 68, 68, 0.3);
+  --color-board-check: rgba(245, 158, 11, 0.4);
+  
+  /* BORDER & LINES - Enhanced Visibility */
+  --color-border-subtle: rgba(203, 213, 225, 0.15);
+  --color-border-default: rgba(203, 213, 225, 0.25);
+  --color-border-strong: rgba(203, 213, 225, 0.4);
+  --color-border-accent: var(--color-accent-primary);
+  
+  /* SHADOWS & ELEVATION */
+  --elevation-subtle: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --elevation-card: 0 2px 10px rgba(0, 0, 0, 0.15);
+  --elevation-dropdown: 0 4px 16px rgba(0, 0, 0, 0.2);
+  --elevation-modal: 0 8px 32px rgba(0, 0, 0, 0.3);
+  
+  /* LIGHT THEME TOKENS - Enhanced for Better Contrast */
+  --color-bg-base-light: #FFFFFF;
+  --color-bg-alt-light: #F8FAFC;
+  --color-surface-light: #F1F5F9;
+  --color-surface-elevated-light: #FFFFFF;
+  --color-surface-overlay-light: #FFFFFF;
+  --color-text-primary-light: #0F172A;
+  --color-text-secondary-light: #475569;
+  --color-text-muted-light: #64748B;
+  --color-text-disabled-light: #94A3B8;
+  --color-text-inverse-light: #FFFFFF;
+  
+  /* LIGHT THEME BORDERS */
+  --color-border-subtle-light: rgba(15, 23, 42, 0.1);
+  --color-border-default-light: rgba(15, 23, 42, 0.2);
+  --color-border-strong-light: rgba(15, 23, 42, 0.3);
+  
+  /* LIGHT THEME CHESS BOARD */
+  --color-board-light-light: #F1F5F9;
+  --color-board-dark-light: #64748B;
+}
+
+/* Light theme activation */
+[data-theme="light"] {
+  --color-bg-base: var(--color-bg-base-light);
+  --color-bg-alt: var(--color-bg-alt-light);
+  --color-surface: var(--color-surface-light);
+  --color-surface-elevated: var(--color-surface-elevated-light);
+  --color-surface-overlay: var(--color-surface-overlay-light);
+  --color-text-primary: var(--color-text-primary-light);
+  --color-text-secondary: var(--color-text-secondary-light);
+  --color-text-muted: var(--color-text-muted-light);
+  --color-text-disabled: var(--color-text-disabled-light);
+  --color-text-inverse: var(--color-text-inverse-light);
+  --color-border-subtle: var(--color-border-subtle-light);
+  --color-border-default: var(--color-border-default-light);
+  --color-border-strong: var(--color-border-strong-light);
+  
+  /* Light theme chess board colors */
+  --color-board-light: var(--color-board-light-light);
+  --color-board-dark: var(--color-board-dark-light);
+  
+  /* Light theme shadows */
+  --elevation-subtle: 0 1px 3px rgba(15, 23, 42, 0.1);
+  --elevation-card: 0 2px 10px rgba(15, 23, 42, 0.08);
+  --elevation-dropdown: 0 4px 16px rgba(15, 23, 42, 0.12);
+  --elevation-modal: 0 8px 32px rgba(15, 23, 42, 0.15);
+}
+
+/* ===========================================
+   📐 SPACING SCALE (Consistent 8px baseline)
+   =========================================== */
+
+:root {
+  --space-0: 0;
+  --space-1: 4px;   /* xs */
+  --space-2: 8px;   /* sm */
+  --space-3: 12px;  /* md */
+  --space-4: 16px;  /* lg */
+  --space-6: 24px;  /* xl */
+  --space-8: 32px;  /* 2xl */
+  --space-12: 48px; /* 3xl */
+  --space-16: 64px; /* 4xl */
+  --space-20: 80px; /* 5xl */
+  --space-24: 96px; /* 6xl */
+}
+
+/* ===========================================
+   🔄 RADIUS TOKENS
+   =========================================== */
+
+:root {
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+}
+
+/* ===========================================
+   🎯 TYPOGRAPHY SCALE
+   =========================================== */
+
+:root {
+  /* FONT FAMILIES */
+  --font-primary: 'Manrope', system-ui, sans-serif;
+  --font-secondary: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  
+  /* TYPE SCALE - Enhanced for Better Readability */
+  --text-xs: 0.75rem;    /* 12px */
+  --text-sm: 0.875rem;   /* 14px - minimum for secondary text */
+  --text-base: 1rem;     /* 16px - body text baseline */
+  --text-lg: 1.125rem;   /* 18px */
+  --text-xl: 1.25rem;    /* 20px */
+  --text-2xl: 1.5rem;    /* 24px - h2 size */
+  --text-3xl: 1.875rem;  /* 30px */
+  --text-4xl: 2.25rem;   /* 36px - h1 size */
+  --text-5xl: 3rem;      /* 48px */
+  
+  /* LINE HEIGHTS */
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  --leading-loose: 2;
+  
+  /* LETTER SPACING */
+  --tracking-tighter: -0.02em;
+  --tracking-tight: -0.01em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.01em;
+  --tracking-wider: 0.02em;
+}
+
+/* ===========================================
+   📱 GRID SYSTEM
+   =========================================== */
+
+:root {
+  /* Desktop Grid (12-column) */
+  --grid-desktop-columns: 12;
+  --grid-desktop-margin: 72px;
+  --grid-desktop-gutter: 24px;
+  --grid-desktop-max-width: 1440px;
+  
+  /* Mobile Grid (4-column) */
+  --grid-mobile-columns: 4;
+  --grid-mobile-margin: 16px;
+  --grid-mobile-gutter: 16px;
+  --grid-mobile-max-width: 390px;
+  
+  /* Baseline Grid */
+  --baseline: 8px;
+}
+
+/* ===========================================
+   ⚡ MOTION TOKENS
+   =========================================== */
+
+:root {
+  /* EASING CURVES */
+  --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-out-cubic: cubic-bezier(0.215, 0.61, 0.355, 1);
+  --ease-premium: cubic-bezier(0.2, 0.6, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  
+  /* DURATIONS */
+  --duration-instant: 0ms;
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+  --duration-slower: 400ms;
+  --duration-slowest: 600ms;
+}
+
+/* ===========================================
+   🎪 COMPONENT TOKENS
+   =========================================== */
+
+:root {
+  /* BUTTON SIZES */
+  --button-sm-height: 32px;
+  --button-md-height: 40px;
+  --button-lg-height: 48px;
+  --button-xl-height: 56px;
+  
+  /* INPUT SIZES */
+  --input-sm-height: 32px;
+  --input-md-height: 40px;
+  --input-lg-height: 48px;
+  
+  /* CARD PADDING */
+  --card-padding-sm: var(--space-3) var(--space-4);
+  --card-padding-md: var(--space-4) var(--space-6);
+  --card-padding-lg: var(--space-6) var(--space-8);
+}
+
+/* ===========================================
+   ♿ ACCESSIBILITY
+   =========================================== */
+
+:root {
+  /* FOCUS RING */
+  --focus-ring: 0 0 0 2px var(--color-accent-primary);
+  --focus-ring-offset: 2px;
+  
+  /* MINIMUM TARGET SIZES */
+  --touch-target-min: 44px;
+  
+  /* HIGH CONTRAST MODE */
+  --high-contrast-border: 2px solid;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-normal: 0ms;
+    --duration-slow: 0ms;
+    --duration-slower: 0ms;
+    --duration-slowest: 0ms;
+  }
+}
+
+@media (prefers-contrast: high) {
+  :root {
+    --color-border-default: var(--color-text-primary);
+    --color-border-strong: var(--color-text-primary);
+  }
+}
+
+/* ===========================================
+   📐 BASE STYLES
+   =========================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  line-height: var(--leading-normal);
+}
+
+body {
+  font-family: var(--font-primary);
+  font-weight: 400;
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-base) !important;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+  background-color: var(--color-bg-base) !important;
+  color: var(--color-text-primary) !important;
+}
+
+/* Force dark theme on app container */
+.app-container {
+  background-color: var(--color-bg-base) !important;
+  color: var(--color-text-primary) !important;
+  min-height: 100vh;
+}
+
+/* Focus management */
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}

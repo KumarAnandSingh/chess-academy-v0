@@ -3,7 +3,7 @@ import { EnhancedPlayVsComputer } from '../components/chess/EnhancedPlayVsComput
 
 const PlayComputerPage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-bg-base)' }}>
       <EnhancedPlayVsComputer />
     </div>
   );

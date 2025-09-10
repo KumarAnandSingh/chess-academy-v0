@@ -585,7 +585,7 @@ const InteractiveLesson: React.FC<InteractiveLessonProps> = () => {
         {/* Chess Board Panel */}
         <div className="flex justify-center">
           {currentStep?.fen && (
-            <div className="bg-white rounded-lg p-6 shadow-sm border">
+            <div className="rounded-lg p-6 shadow-sm border" style={{ backgroundColor: 'var(--color-surface-elevated)', borderColor: 'var(--color-border-default)' }}>
               <ChessBoard
                 fen={currentStep.fen}
                 orientation="white"

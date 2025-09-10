@@ -3,7 +3,7 @@ import { ChessBoard } from './ChessBoard';
 import { useGamificationStore } from '../../stores/gamificationStore';
 import { AICoach } from '../ai/AICoach';
 import { usePuzzleCoach } from '../../hooks/useAICoach';
-import { ResponsiveContainer, FlexContainer } from '../ui/ResponsiveContainer';
+import { ResponsiveContainer } from '../ui/ResponsiveContainer';
 import { AnimatedButton } from '../ui/AnimatedButton';
 import { LinearProgress, MotivationalNotification } from '../ui/ProgressIndicators';
 import { FadeIn, Bounce } from '../ui/AnimationUtils';
@@ -188,14 +188,7 @@ export const ChessPuzzle: React.FC<ChessPuzzleProps> = ({
         onClose={() => setNotification({ ...notification, isVisible: false })}
       />
 
-      <FlexContainer 
-        direction="col"
-        gap="lg"
-        responsive={{
-          lg: { direction: 'row', justify: 'between' }
-        }}
-        className="min-h-screen"
-      >
+      <div className="min-h-screen flex flex-col gap-8 lg:flex-row lg:justify-between">
         {/* Chess Board Section */}
         <div className="flex flex-col items-center lg:w-1/2">
           <FadeIn direction="up">
@@ -213,7 +206,7 @@ export const ChessPuzzle: React.FC<ChessPuzzleProps> = ({
               
               {/* Completion overlay */}
               {isComplete && (
-                <div className="absolute inset-0 bg-green-100 bg-opacity-90 rounded-lg flex items-center justify-center">
+                <div className="absolute inset-0 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--color-success-subtle)', opacity: 0.9 }}>
                   <Bounce trigger={true}>
                     <div className="text-4xl">🎉</div>
                   </Bounce>
@@ -224,7 +217,7 @@ export const ChessPuzzle: React.FC<ChessPuzzleProps> = ({
           
           {/* Board Controls */}
           <FadeIn direction="up" delay={200}>
-            <FlexContainer gap="sm" wrap={true} className="mt-6">
+            <div className="flex flex-wrap gap-2 mt-6">
               <AnimatedButton
                 onClick={resetPuzzle}
                 variant="secondary"
@@ -264,7 +257,7 @@ export const ChessPuzzle: React.FC<ChessPuzzleProps> = ({
                   Hint
                 </AnimatedButton>
               )}
-            </FlexContainer>
+            </div>
           </FadeIn>
         </div>
 
@@ -293,23 +286,23 @@ export const ChessPuzzle: React.FC<ChessPuzzleProps> = ({
 
           {/* Puzzle Header */}
           <FadeIn direction="right" delay={100}>
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">{puzzle.title}</h2>
-              <p className="text-gray-600 mb-4">{puzzle.description}</p>
+            <div className="p-6 rounded-xl shadow-sm" style={{ backgroundColor: 'var(--color-surface-elevated)', border: '1px solid var(--color-border-subtle)' }}>
+              <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--color-text-primary)' }}>{puzzle.title}</h2>
+              <p className="mb-4" style={{ color: 'var(--color-text-secondary)' }}>{puzzle.description}</p>
               
-              <FlexContainer gap="sm" wrap={true}>
-                <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+              <div className="flex flex-wrap gap-2">
+                <span className="px-3 py-1 rounded-full text-sm font-medium" style={{ backgroundColor: 'var(--color-accent-primary-subtle)', color: 'var(--color-accent-primary)' }}>
                   Rating: {puzzle.rating}
                 </span>
                 {puzzle.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm hover-lift"
+                    className="px-3 py-1 rounded-full text-sm hover-lift" style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text-secondary)' }}
                   >
                     {tag}
                   </span>
                 ))}
-              </FlexContainer>
+              </div>
             </div>
           </FadeIn>
 
@@ -317,13 +310,11 @@ export const ChessPuzzle: React.FC<ChessPuzzleProps> = ({
           {feedback.type && (
             <FadeIn direction="right" delay={150}>
               <div
-                className={`p-4 rounded-lg border-l-4 shadow-sm ${
-                  feedback.type === 'success'
-                    ? 'bg-green-50 text-green-800 border-green-400'
-                    : feedback.type === 'error'
-                    ? 'bg-red-50 text-red-800 border-red-400'
-                    : 'bg-yellow-50 text-yellow-800 border-yellow-400'
-                }`}
+                className="p-4 rounded-lg border-l-4 shadow-sm" style={{
+                  backgroundColor: feedback.type === 'success' ? 'var(--color-success-subtle)' : feedback.type === 'error' ? 'var(--color-danger-subtle)' : 'var(--color-warning-subtle)',
+                  color: feedback.type === 'success' ? 'var(--color-success)' : feedback.type === 'error' ? 'var(--color-danger)' : 'var(--color-warning)',
+                  borderLeftColor: feedback.type === 'success' ? 'var(--color-success)' : feedback.type === 'error' ? 'var(--color-danger)' : 'var(--color-warning)'
+                }}
               >
                 <p className="font-medium flex items-center gap-2">
                   {feedback.type === 'success' && <span>✅</span>}
@@ -337,8 +328,8 @@ export const ChessPuzzle: React.FC<ChessPuzzleProps> = ({
 
           {/* Progress */}
           <FadeIn direction="right" delay={200}>
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-100">
-              <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <div className="p-6 rounded-xl" style={{ background: 'linear-gradient(135deg, var(--color-accent-primary-subtle) 0%, var(--color-surface-elevated) 100%)', border: '1px solid var(--color-border-subtle)' }}>
+              <h3 className="font-semibold mb-4 flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
                 <span>📊</span> Progress
               </h3>
               
@@ -350,7 +341,7 @@ export const ChessPuzzle: React.FC<ChessPuzzleProps> = ({
                   animate={true}
                 />
                 
-                <FlexContainer justify="between" className="text-sm text-gray-600">
+                <div className="flex justify-between text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                   <div className="flex items-center gap-1">
                     <span>🎯</span>
                     <span>Attempts: {attempts}</span>
@@ -359,7 +350,7 @@ export const ChessPuzzle: React.FC<ChessPuzzleProps> = ({
                     <span>⏱️</span>
                     <span>Time: {Math.floor((Date.now() - startTime) / 1000)}s</span>
                   </div>
-                </FlexContainer>
+                </div>
               </div>
             </div>
           </FadeIn>
@@ -367,15 +358,15 @@ export const ChessPuzzle: React.FC<ChessPuzzleProps> = ({
           {/* Solution (when shown) */}
           {showSolution && (
             <FadeIn direction="right" delay={250}>
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl border border-blue-200 shadow-sm">
-                <h3 className="font-semibold text-blue-900 mb-4 flex items-center gap-2">
+              <div className="p-6 rounded-xl shadow-sm" style={{ background: 'linear-gradient(135deg, var(--color-accent-primary-subtle) 0%, var(--color-surface-elevated) 100%)', border: '1px solid var(--color-border-subtle)' }}>
+                <h3 className="font-semibold mb-4 flex items-center gap-2" style={{ color: 'var(--color-accent-primary)' }}>
                   <span>🔍</span> Solution
                 </h3>
-                <div className="space-y-2 text-sm text-blue-800">
+                <div className="space-y-2 text-sm" style={{ color: 'var(--color-accent-primary)' }}>
                   {puzzle.solution.map((move, index) => (
-                    <div key={index} className="flex justify-between py-2 px-3 bg-white bg-opacity-50 rounded-lg hover-lift">
+                    <div key={index} className="flex justify-between py-2 px-3 rounded-lg hover-lift" style={{ backgroundColor: 'var(--color-surface)', opacity: 0.8 }}>
                       <span className="font-medium">Move {index + 1}:</span>
-                      <span className="font-mono text-blue-900 font-bold">{move}</span>
+                      <span className="font-mono font-bold" style={{ color: 'var(--color-accent-primary)' }}>{move}</span>
                     </div>
                   ))}
                 </div>
@@ -386,47 +377,47 @@ export const ChessPuzzle: React.FC<ChessPuzzleProps> = ({
           {/* Completion */}
           {isComplete && (
             <FadeIn direction="scale" delay={300}>
-              <div className="bg-gradient-to-br from-green-50 to-emerald-100 p-6 rounded-xl border border-green-200 shadow-lg">
+              <div className="p-6 rounded-xl shadow-lg" style={{ background: 'linear-gradient(135deg, var(--color-success-subtle) 0%, var(--color-surface-elevated) 100%)', border: '1px solid var(--color-success)' }}>
                 <Bounce trigger={true}>
-                  <h3 className="font-bold text-green-900 mb-4 text-xl flex items-center gap-2">
+                  <h3 className="font-bold mb-4 text-xl flex items-center gap-2" style={{ color: 'var(--color-success)' }}>
                     <span>🎉</span> Puzzle Solved!
                   </h3>
                 </Bounce>
                 
-                <FlexContainer direction="col" gap="sm" className="text-sm text-green-800">
-                  <FlexContainer justify="between" className="p-3 bg-white bg-opacity-50 rounded-lg">
+                <div className="flex flex-col gap-2 text-sm" style={{ color: 'var(--color-success)' }}>
+                  <div className="flex justify-between p-3 rounded-lg" style={{ backgroundColor: 'var(--color-surface)', opacity: 0.8 }}>
                     <span>🎯 Attempts:</span>
                     <span className="font-bold">{attempts + 1}</span>
-                  </FlexContainer>
+                  </div>
                   
-                  <FlexContainer justify="between" className="p-3 bg-white bg-opacity-50 rounded-lg">
+                  <div className="flex justify-between p-3 rounded-lg" style={{ backgroundColor: 'var(--color-surface)', opacity: 0.8 }}>
                     <span>⏱️ Time:</span>
                     <span className="font-bold">{Math.floor((Date.now() - startTime) / 1000)}s</span>
-                  </FlexContainer>
+                  </div>
                   
-                  <div className="p-3 bg-gradient-to-r from-yellow-100 to-yellow-200 rounded-lg text-center">
-                    <div className="text-2xl font-bold text-green-900 mb-2">
+                  <div className="p-3 rounded-lg text-center" style={{ background: 'linear-gradient(90deg, var(--color-warning-subtle) 0%, var(--color-surface-elevated) 100%)' }}>
+                    <div className="text-2xl font-bold mb-2" style={{ color: 'var(--color-success)' }}>
                       +{xpGained} XP
                     </div>
-                    <FlexContainer gap="sm" justify="center" wrap={true}>
+                    <div className="flex flex-wrap justify-center gap-2">
                       {attempts === 0 && (
-                        <span className="text-xs bg-yellow-200 text-yellow-800 px-3 py-1 rounded-full font-medium">
+                        <span className="text-xs px-3 py-1 rounded-full font-medium" style={{ backgroundColor: 'var(--color-warning-subtle)', color: 'var(--color-warning)' }}>
                           🌟 Perfect!
                         </span>
                       )}
                       {(Date.now() - startTime) < 30000 && (
-                        <span className="text-xs bg-blue-200 text-blue-800 px-3 py-1 rounded-full font-medium">
+                        <span className="text-xs px-3 py-1 rounded-full font-medium" style={{ backgroundColor: 'var(--color-accent-primary-subtle)', color: 'var(--color-accent-primary)' }}>
                           ⚡ Speed Bonus!
                         </span>
                       )}
-                    </FlexContainer>
+                    </div>
                   </div>
-                </FlexContainer>
+                </div>
               </div>
             </FadeIn>
           )}
         </div>
-      </FlexContainer>
+      </div>
     </ResponsiveContainer>
   );
 };

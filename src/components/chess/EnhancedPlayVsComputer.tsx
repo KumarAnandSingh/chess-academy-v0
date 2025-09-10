@@ -424,26 +424,33 @@ export const EnhancedPlayVsComputer: React.FC<EnhancedPlayVsComputerProps> = ({
                   className={`flex items-center justify-between p-3 rounded-lg ${
                     entry.name === 'You' 
                       ? 'bg-blue-50 border-2 border-blue-200' 
-                      : 'bg-gray-50 border border-gray-200'
+                      : 'bg-surface-elevated border border-border-default'
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                      index === 0 ? 'bg-yellow-400 text-yellow-900' :
-                      index === 1 ? 'bg-gray-400 text-gray-900' :
-                      index === 2 ? 'bg-orange-400 text-orange-900' :
-                      'bg-gray-200 text-gray-700'
-                    }`}>
+                    <div 
+                      className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                        index === 0 ? 'bg-yellow-400 text-yellow-900' :
+                        index === 1 ? 'bg-slate-400 text-white' :
+                        index === 2 ? 'bg-orange-400 text-orange-900' :
+                        'bg-surface'
+                      }`}
+                      style={
+                        index > 2 
+                          ? { color: 'var(--color-text-secondary)' } 
+                          : {}
+                      }
+                    >
                       {index + 1}
                     </div>
                     <div>
                       <p className="font-semibold">{entry.name}</p>
-                      <p className="text-sm text-gray-600">Level {entry.level} • {entry.gamesPlayed} games</p>
+                      <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>Level {entry.level} • {entry.gamesPlayed} games</p>
                     </div>
                   </div>
                   <div className="text-right">
                     <p className="font-bold text-lg">{entry.points}</p>
-                    <p className="text-sm text-gray-600">points</p>
+                    <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>points</p>
                   </div>
                 </div>
               ))}
@@ -641,7 +648,7 @@ export const EnhancedPlayVsComputer: React.FC<EnhancedPlayVsComputerProps> = ({
               <h3 className="text-xl font-semibold mb-2">
                 Playing against: {currentLevel?.botName || 'Computer'}
               </h3>
-              <p className="text-gray-600">{currentLevel?.description || 'Select a difficulty level to play'}</p>
+              <p style={{ color: 'var(--color-text-secondary)' }}>{currentLevel?.description || 'Select a difficulty level to play'}</p>
             </div>
             
             <div className="flex justify-center gap-8">
@@ -653,7 +660,7 @@ export const EnhancedPlayVsComputer: React.FC<EnhancedPlayVsComputerProps> = ({
               >
                 <div className="text-4xl">♔</div>
                 <span>White</span>
-                <span className="text-xs text-gray-500">You move first</span>
+                <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>You move first</span>
               </Button>
               
               <Button
@@ -664,7 +671,7 @@ export const EnhancedPlayVsComputer: React.FC<EnhancedPlayVsComputerProps> = ({
               >
                 <div className="text-4xl">♚</div>
                 <span>Black</span>
-                <span className="text-xs text-gray-500">Computer starts</span>
+                <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>Computer starts</span>
               </Button>
             </div>
             
@@ -697,7 +704,7 @@ export const EnhancedPlayVsComputer: React.FC<EnhancedPlayVsComputerProps> = ({
           </Badge>
           <div>
             <h2 className="text-xl font-bold">{currentLevel.name}</h2>
-            <p className="text-sm text-gray-600">vs {currentLevel.botName}</p>
+            <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>vs {currentLevel.botName}</p>
           </div>
         </div>
         
@@ -732,7 +739,7 @@ export const EnhancedPlayVsComputer: React.FC<EnhancedPlayVsComputerProps> = ({
             />
             {/* Debug info - remove in production */}
             {import.meta.env.DEV && (
-              <div className="mt-2 text-xs text-gray-500 bg-gray-100 p-2 rounded">
+              <div className="mt-2 text-xs bg-surface p-2 rounded" style={{ color: 'var(--color-text-muted)' }}>
                 <div>FEN: {gamePosition.substring(0, 30)}...</div>
                 <div>Turn: {game.turn() === 'w' ? 'White' : 'Black'}</div>
                 <div>Disabled: {(isComputerThinking || gameResult !== null).toString()}</div>
@@ -785,8 +792,8 @@ export const EnhancedPlayVsComputer: React.FC<EnhancedPlayVsComputerProps> = ({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-gray-600 mb-2">{currentLevel.description}</p>
-              <div className="text-xs text-gray-500">
+              <p className="text-sm mb-2" style={{ color: 'var(--color-text-secondary)' }}>{currentLevel.description}</p>
+              <div className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
                 Difficulty: {currentLevel.difficulty}
                 {currentLevel.timeLimit && ` • ${currentLevel.timeLimit}s per move`}
               </div>

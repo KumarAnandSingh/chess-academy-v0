@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { 
   Crown, 
@@ -6,17 +6,30 @@ import {
   Puzzle, 
   Monitor, 
   Trophy, 
-  BarChart3
+  BarChart3,
+  User,
+  Settings,
+  Bell,
+  Award,
+  TrendingUp
 } from 'lucide-react'
+import { motion } from 'framer-motion'
 import { Button } from '../ui/button'
+import { Badge } from '../ui/badge'
+import { useAuthStore } from '../../stores/authStore'
 import { cn } from '../../lib/utils'
 
 const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: BarChart3 },
-  { name: 'vs Computer Champs', href: '/play', icon: Monitor },
-  { name: 'Learn Basics', href: '/lessons', icon: BookOpen },
-  { name: 'Practice', href: '/puzzles', icon: Puzzle },
-  { name: 'Leaderboard', href: '/leaderboard', icon: Trophy }
+  { name: 'Dashboard', href: '/dashboard', icon: BarChart3, description: 'Your progress overview' },
+  { name: 'vs Computer', href: '/play', icon: Monitor, description: 'Play against AI' },
+  { name: 'Lessons', href: '/lessons', icon: BookOpen, description: 'Learn chess fundamentals' },
+  { name: 'Puzzles', href: '/puzzles', icon: Puzzle, description: 'Practice tactics' },
+  { name: 'Leaderboard', href: '/leaderboard', icon: Trophy, description: 'See top players' }
+]
+
+const secondaryNavigation = [
+  { name: 'Profile', href: '/profile', icon: User },
+  { name: 'Settings', href: '/settings', icon: Settings },
 ]
 
 interface SidebarProps {
@@ -26,77 +39,247 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const location = useLocation()
+  const { user, deviceInfo, isAuthenticated, loginDemo } = useAuthStore()
+
+  // Close sidebar on route change for mobile
+  useEffect(() => {
+    if (deviceInfo.isMobile && isOpen) {
+      onClose?.()
+    }
+  }, [location.pathname, deviceInfo.isMobile, isOpen, onClose])
 
   const sidebarContent = (
-    <div className="flex flex-col h-full">
-      {/* Logo - Always visible now */}
-      <div className="p-4 border-b">
+    <motion.div 
+      className="flex flex-col h-full"
+      initial={false}
+      animate={{ opacity: isOpen ? 1 : 0 }}
+      transition={{ duration: 0.2 }}
+    >
+      {/* Logo - Mobile optimized */}
+      <div className={cn(
+        "p-4 border-b mobile:p-6",
+        "safe-left safe-right"
+      )}>
         <Link 
           to="/dashboard" 
           className="flex items-center space-x-2"
           onClick={onClose}
         >
-          <Crown className="h-6 w-6 text-blue-600" />
-          <span className="font-bold text-xl text-gray-900">Chess Academy</span>
+          <Crown className="h-6 w-6 text-primary mobile:h-8 mobile:w-8" />
+          <span className="font-bold text-lg mobile:text-xl text-foreground">
+            Chess Academy
+          </span>
         </Link>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-1">
-        {navigation.map((item) => {
-          const Icon = item.icon
-          const isActive = location.pathname === item.href
-          return (
-            <Button
-              key={item.name}
-              variant={isActive ? "secondary" : "ghost"}
-              className={cn(
-                "w-full justify-start space-x-2 h-10",
-                isActive && "bg-accent text-accent-foreground"
-              )}
-              asChild
-            >
-              <Link 
-                to={item.href}
-                onClick={onClose}
+      {/* User info section - mobile only */}
+      {deviceInfo.isMobile && (
+        <div className="p-4 border-b bg-muted/20">
+          {isAuthenticated && user ? (
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                <User className="w-5 h-5 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-foreground truncate">
+                  {user.displayName}
+                </p>
+                <div className="flex items-center space-x-2">
+                  <Badge variant="outline" className="text-xs">
+                    Rating: 1200
+                  </Badge>
+                  <Badge variant="secondary" className="text-xs">
+                    <TrendingUp className="w-3 h-3 mr-1" />
+                    +50
+                  </Badge>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground mb-2">Welcome to Chess Academy!</p>
+              <Button 
+                onClick={loginDemo} 
+                variant="outline" 
+                size="sm"
+                className="w-full"
               >
-                <Icon className="h-4 w-4" />
-                <span>{item.name}</span>
-              </Link>
-            </Button>
-          )
-        })}
+                Try Demo Mode
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Primary Navigation */}
+      <nav className={cn(
+        "flex-1 p-4 space-y-1 mobile:p-6",
+        "safe-left safe-right"
+      )}>
+        <div className="space-y-1">
+          {navigation.map((item) => {
+            const Icon = item.icon
+            const isActive = location.pathname === item.href
+            return (
+              <Button
+                key={item.name}
+                variant={isActive ? "secondary" : "ghost"}
+                className={cn(
+                  "w-full justify-start space-x-3",
+                  "h-10 mobile:h-12 text-sm mobile:text-base",
+                  "touch:h-12",
+                  isActive && "bg-accent text-accent-foreground shadow-sm"
+                )}
+                asChild
+              >
+                <Link 
+                  to={item.href}
+                  onClick={onClose}
+                  className="flex items-center"
+                >
+                  <Icon className="h-4 w-4 mobile:h-5 mobile:w-5 shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium">{item.name}</div>
+                    {deviceInfo.isMobile && (
+                      <div className="text-xs text-muted-foreground">
+                        {item.description}
+                      </div>
+                    )}
+                  </div>
+                </Link>
+              </Button>
+            )
+          })}
+        </div>
+
+        {/* Secondary navigation - mobile only */}
+        {deviceInfo.isMobile && (
+          <div className="pt-4 mt-4 border-t space-y-1">
+            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+              Account
+            </div>
+            {secondaryNavigation.map((item) => {
+              const Icon = item.icon
+              const isActive = location.pathname === item.href
+              return (
+                <Button
+                  key={item.name}
+                  variant={isActive ? "secondary" : "ghost"}
+                  className={cn(
+                    "w-full justify-start space-x-3",
+                    "h-10 mobile:h-12 text-sm mobile:text-base",
+                    isActive && "bg-accent text-accent-foreground"
+                  )}
+                  asChild
+                >
+                  <Link 
+                    to={item.href}
+                    onClick={onClose}
+                  >
+                    <Icon className="h-4 w-4 mobile:h-5 mobile:w-5" />
+                    <span>{item.name}</span>
+                  </Link>
+                </Button>
+              )
+            })}
+          </div>
+        )}
       </nav>
 
-      {/* Bottom section */}
-      <div className="p-4 border-t">
-        <div className="text-xs text-muted-foreground">
-          <div className="flex items-center justify-between mb-1">
-            <span>Current Rating</span>
-            <span className="font-medium">1200</span>
+      {/* Bottom section - Enhanced for mobile */}
+      <div className={cn(
+        "p-4 border-t bg-muted/20 mobile:p-6",
+        "safe-left safe-right safe-bottom"
+      )}>
+        {isAuthenticated ? (
+          <div className="space-y-3">
+            {/* Stats */}
+            <div className="grid grid-cols-2 gap-3 text-xs mobile:text-sm">
+              <div className="text-center">
+                <div className="font-semibold text-foreground">1200</div>
+                <div className="text-muted-foreground">Rating</div>
+              </div>
+              <div className="text-center">
+                <div className="font-semibold text-green-600">+50</div>
+                <div className="text-muted-foreground">This Week</div>
+              </div>
+            </div>
+            
+            {/* Progress indicator */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs mobile:text-sm">
+                <span className="text-muted-foreground">Level Progress</span>
+                <span className="font-medium text-foreground">75%</span>
+              </div>
+              <div className="w-full bg-muted rounded-full h-2">
+                <div 
+                  className="bg-primary rounded-full h-2 transition-all duration-300" 
+                  style={{ width: '75%' }}
+                />
+              </div>
+            </div>
+            
+            {/* Achievement indicator */}
+            <div className="flex items-center space-x-2 text-xs mobile:text-sm text-muted-foreground">
+              <Award className="w-4 h-4 text-yellow-500" />
+              <span>3 achievements unlocked</span>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="text-center space-y-2">
+            <p className="text-xs text-muted-foreground">
+              Sign up to track your progress!
+            </p>
+            <Button 
+              onClick={loginDemo} 
+              variant="primary" 
+              size="sm"
+              className="w-full"
+            >
+              Get Started
+            </Button>
+          </div>
+        )}
       </div>
-    </div>
+    </motion.div>
   )
 
   return (
     <>
       {/* Mobile overlay */}
       {isOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-40 md:hidden" 
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-mobile-overlay lg:hidden" 
           onClick={onClose}
         />
       )}
       
       {/* Sidebar */}
-      <aside className={cn(
-        "fixed left-0 top-14 z-50 h-[calc(100vh-3.5rem)] w-64 transform border-r bg-background transition-transform duration-200 ease-in-out md:relative md:top-0 md:h-full md:translate-x-0",
-        isOpen ? "translate-x-0" : "-translate-x-full"
-      )}>
+      <motion.aside 
+        className={cn(
+          "fixed left-0 z-mobile-nav w-72 mobile:w-80 transform border-r bg-background",
+          "top-14 mobile:top-16 h-[calc(100vh-3.5rem)] mobile:h-[calc(100vh-4rem)]",
+          "transition-transform duration-300 ease-out",
+          "lg:relative lg:top-0 lg:h-full lg:translate-x-0 lg:w-64",
+          "shadow-mobile-bottom lg:shadow-none"
+        )}
+        initial={false}
+        animate={{ 
+          x: isOpen ? 0 : '-100%',
+        }}
+        transition={{ 
+          type: "spring", 
+          stiffness: 300, 
+          damping: 30,
+          duration: 0.3 
+        }}
+      >
         {sidebarContent}
-      </aside>
+      </motion.aside>
     </>
   )
 }
