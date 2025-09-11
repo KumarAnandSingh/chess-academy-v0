@@ -12,7 +12,10 @@ import {
   Bell,
   Award,
   TrendingUp,
-  Target
+  Target,
+  Menu,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { Button } from '../ui/button'
@@ -21,10 +24,10 @@ import { useAuthStore } from '../../stores/authStore'
 import { cn } from '../../lib/utils'
 
 const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: BarChart3, description: 'Your progress overview' },
-  { name: 'Play / vs Computer', href: '/play', icon: Monitor, description: 'Play against AI' },
-  { name: 'Puzzles', href: '/puzzles', icon: Puzzle, description: 'Practice tactics' },
+  { name: 'Play', href: '/play', icon: Monitor, description: 'Play against AI' },
   { name: 'Learn / Lessons', href: '/lessons', icon: BookOpen, description: 'Learn chess fundamentals' },
+  { name: 'Puzzles', href: '/puzzles', icon: Puzzle, description: 'Practice tactics' },
+  { name: 'Dashboard', href: '/dashboard', icon: BarChart3, description: 'Your progress overview' },
   { name: 'Rate My Strength', href: '/strength-assessment', icon: Target, description: 'Assess your skill level', divider: true },
   { name: 'Leaderboard', href: '/leaderboard', icon: Trophy, description: 'See top players' }
 ]
@@ -37,9 +40,11 @@ const secondaryNavigation = [
 interface SidebarProps {
   isOpen: boolean
   onClose?: () => void
+  isCollapsed?: boolean
+  onToggleCollapse?: () => void
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
+const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed = false, onToggleCollapse }) => {
   const location = useLocation()
   const { user, deviceInfo, isAuthenticated, loginDemo } = useAuthStore()
 
@@ -59,19 +64,38 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     >
       {/* Logo - Mobile optimized */}
       <div className={cn(
-        "p-4 border-b mobile:p-6",
+        "p-4 border-b mobile:p-6 flex items-center justify-between",
         "safe-left safe-right"
       )}>
         <Link 
           to="/dashboard" 
-          className="flex items-center space-x-2"
+          className={cn(
+            "flex items-center",
+            isCollapsed ? "justify-center w-full" : "space-x-2"
+          )}
           onClick={onClose}
         >
           <Crown className="h-6 w-6 text-primary mobile:h-8 mobile:w-8" />
-          <span className="font-bold text-lg mobile:text-xl text-foreground">
-            Chess Academy
-          </span>
+          {!isCollapsed && (
+            <span className="font-bold text-lg mobile:text-xl text-foreground">
+              Chess Academy
+            </span>
+          )}
         </Link>
+        
+        {/* Desktop Toggle Button */}
+        {!deviceInfo.isMobile && onToggleCollapse && (
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={onToggleCollapse}
+            className="hidden md:flex"
+            style={{ color: 'var(--color-text-secondary)' }}
+            title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+          </Button>
+        )}
       </div>
 
       {/* User info section - mobile only */}
@@ -130,12 +154,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                 <Button
                   variant={isActive ? "secondary" : "ghost"}
                   className={cn(
-                    "w-full justify-start space-x-3",
-                    "h-10 mobile:h-12 text-sm mobile:text-base",
+                    "w-full",
+                    isCollapsed 
+                      ? "justify-center p-2 h-10" 
+                      : "justify-start space-x-3 h-10 mobile:h-12 text-sm mobile:text-base",
                     "touch:h-12",
                     isActive && "bg-accent text-accent-foreground shadow-sm"
                   )}
                   asChild
+                  title={isCollapsed ? item.name : undefined}
                 >
                   <Link 
                     to={item.href}
@@ -143,14 +170,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                     className="flex items-center"
                   >
                     <Icon className="h-4 w-4 mobile:h-5 mobile:w-5 shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium">{item.name}</div>
-                      {deviceInfo.isMobile && (
-                        <div className="text-xs text-muted-foreground">
-                          {item.description}
-                        </div>
-                      )}
-                    </div>
+                    {!isCollapsed && (
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium">{item.name}</div>
+                        {deviceInfo.isMobile && (
+                          <div className="text-xs text-muted-foreground">
+                            {item.description}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </Link>
                 </Button>
               </div>

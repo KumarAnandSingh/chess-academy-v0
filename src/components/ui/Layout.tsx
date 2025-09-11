@@ -13,6 +13,7 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [authModalOpen, setAuthModalOpen] = useState(false)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const { user, isAuthenticated, logout } = useAuthStore()
   const { theme, toggleTheme } = useThemeStore()
 
@@ -30,6 +31,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const handleLogout = async () => {
     await logout()
+  }
+
+  const handleSidebarToggle = () => {
+    setIsSidebarCollapsed(!isSidebarCollapsed)
   }
 
   // Ensure mobile menu is closed on desktop
@@ -50,13 +55,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     <div className="flex h-screen" style={{ backgroundColor: 'var(--color-bg-base)' }}>
       {/* Desktop Sidebar - Hidden on mobile */}
       <div 
-        className="hidden md:flex md:w-64 md:flex-col" 
+        className={`hidden md:flex md:flex-col transition-all duration-300 ${
+          isSidebarCollapsed ? 'md:w-16' : 'md:w-64'
+        }`}
         style={{ 
           backgroundColor: 'var(--color-surface-elevated)', 
           borderRight: '1px solid var(--color-border-default)' 
         }}
       >
-        <Sidebar isOpen={true} />
+        <Sidebar isOpen={true} isCollapsed={isSidebarCollapsed} onToggleCollapse={handleSidebarToggle} />
       </div>
 
       {/* Mobile Sidebar Overlay - Only visible on mobile */}

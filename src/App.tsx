@@ -81,8 +81,8 @@ function App() {
         <Router>
         <div className="app-container">
           <Routes>
-            {/* Home Route - redirects to dashboard */}
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            {/* Home Route - redirects to play (primary action) */}
+            <Route path="/" element={<Navigate to="/play" replace />} />
 
             {/* Public Dashboard - No authentication needed */}
             <Route path="/dashboard" element={

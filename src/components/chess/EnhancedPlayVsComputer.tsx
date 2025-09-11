@@ -698,7 +698,17 @@ export const EnhancedPlayVsComputer: React.FC<EnhancedPlayVsComputerProps> = ({
       {/* Game Header */}
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Badge className={currentLevel.color}>
+          <Badge 
+            className="px-3 py-1 min-h-[20px] text-white font-semibold text-sm"
+            style={{
+              backgroundColor: currentLevel.id <= 8 ? '#22C55E' : 
+                             currentLevel.id <= 16 ? '#EAB308' : 
+                             currentLevel.id <= 20 ? '#F97316' : 
+                             currentLevel.id <= 23 ? '#DC2626' : '#7C2D12',
+              color: '#FFFFFF',
+              border: '1px solid rgba(255,255,255,0.2)'
+            }}
+          >
             {currentLevel.icon}
             <span className="ml-1">Level {currentLevel.id}</span>
           </Badge>
@@ -709,15 +719,35 @@ export const EnhancedPlayVsComputer: React.FC<EnhancedPlayVsComputerProps> = ({
         </div>
         
         <div className="flex items-center gap-2">
-          <Button onClick={quitGame} variant="outline" size="sm" className="text-red-600 hover:text-red-700">
+          <Button 
+            onClick={() => window.confirm("Are you sure you want to quit this game?") && quitGame()} 
+            variant="destructive" 
+            size="sm" 
+            className="min-h-[44px] bg-red-600 hover:bg-red-700 text-white border-red-600"
+          >
             <X className="h-4 w-4 mr-1" />
             Quit
           </Button>
-          <Button onClick={forfeitGame} variant="outline" size="sm" className="text-orange-600 hover:text-orange-700">
+          <Button 
+            onClick={() => window.confirm("Are you sure you want to forfeit this game?") && forfeitGame()} 
+            variant="outline" 
+            size="sm" 
+            className="min-h-[44px] text-red-600 hover:text-red-700 border-red-600 hover:bg-red-50"
+          >
             <Flag className="h-4 w-4 mr-1" />
             Forfeit
           </Button>
-          <Button onClick={resetGame} variant="outline" size="sm">
+          <Button 
+            onClick={resetGame} 
+            variant="primary" 
+            size="sm" 
+            className="min-h-[44px]"
+            style={{ 
+              backgroundColor: 'var(--color-cta-primary)', 
+              color: '#ffffff',
+              border: 'none'
+            }}
+          >
             <RotateCcw className="h-4 w-4 mr-1" />
             New Game
           </Button>
@@ -727,7 +757,13 @@ export const EnhancedPlayVsComputer: React.FC<EnhancedPlayVsComputerProps> = ({
       <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
         {/* Chess Board */}
         <div className="xl:col-span-3 flex justify-center">
-          <div className="relative w-full max-w-[600px]">
+          <div 
+            className="relative w-full max-w-[600px]" 
+            style={{ 
+              maxHeight: 'calc(100vh - 200px)',
+              minHeight: '400px'
+            }}
+          >
             <ChessBoard
               fen={gamePosition}
               orientation={playerColor}

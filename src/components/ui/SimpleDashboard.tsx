@@ -172,7 +172,7 @@ const SimpleDashboard: React.FC = () => {
           <div className="absolute top-0 right-0 w-1/3 h-full" style={{ background: 'linear-gradient(270deg, var(--color-accent-primary-subtle) 0%, transparent 100%)' }} />
         </div>
         
-        <div className="relative container mx-auto px-6 py-12 text-center max-w-4xl">
+        <div className="relative container mx-auto px-6 py-6 md:py-7 text-center max-w-4xl">
           {/* Chess Crown Icon */}
           <div className="inline-flex items-center justify-center w-20 h-20 mb-6 group hover:scale-110 transition-transform duration-300" style={{ background: 'linear-gradient(135deg, var(--color-accent-primary) 0%, var(--color-accent-primary-hover) 100%)', boxShadow: 'var(--elevation-card)', borderRadius: '12px' }}>
             <Crown className="w-10 h-10 text-white" aria-label="Chess Academy" />
@@ -273,6 +273,47 @@ const SimpleDashboard: React.FC = () => {
               </div>
               <h3 className="font-semibold mb-1" style={{ color: 'var(--color-text-primary)' }}>Progressive</h3>
               <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>Track your improvement</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Sticky Mini-CTA Bar */}
+      <div className="sticky top-0 z-40 bg-opacity-95 backdrop-blur-sm border-b" style={{ backgroundColor: 'var(--color-surface-elevated)', borderColor: 'var(--color-border-subtle)' }}>
+        <div className="container mx-auto px-6 py-3">
+          <div className="flex items-center justify-between max-w-4xl mx-auto">
+            <div className="flex items-center gap-3">
+              <Crown className="w-5 h-5" style={{ color: 'var(--color-accent-primary)' }} />
+              <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
+                Ready to start learning?
+              </span>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button 
+                size="sm" 
+                asChild 
+                className="min-h-[36px]"
+                style={{ 
+                  backgroundColor: 'var(--color-cta-primary)', 
+                  color: '#ffffff',
+                  borderRadius: '8px'
+                }}
+              >
+                <Link to="/lessons">Start Now</Link>
+              </Button>
+              <Button 
+                size="sm" 
+                variant="outline" 
+                asChild 
+                className="min-h-[36px]"
+                style={{ 
+                  borderColor: 'var(--color-border-default)',
+                  color: 'var(--color-text-secondary)',
+                  borderRadius: '8px'
+                }}
+              >
+                <Link to="/play">Play</Link>
+              </Button>
             </div>
           </div>
         </div>
