@@ -15,6 +15,7 @@ import ProfilePage from './pages/ProfilePage';
 import LeaderboardPage from './pages/LeaderboardPage';
 import SettingsPage from './pages/SettingsPage';
 import DebugPage from './pages/DebugPage';
+import MultiplayerPage from './pages/MultiplayerPage';
 
 // Stores and providers
 import { AuthProvider } from './components/auth/AuthProvider';
@@ -83,6 +84,14 @@ function App() {
               <AppRoute>
                 <Layout>
                   <PlayComputerPage />
+                </Layout>
+              </AppRoute>
+            } />
+
+            <Route path="/multiplayer" element={
+              <AppRoute>
+                <Layout>
+                  <MultiplayerPage />
                 </Layout>
               </AppRoute>
             } />
