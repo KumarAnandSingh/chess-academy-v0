@@ -5,6 +5,9 @@ export const generateRandomName = () => {
          animals[Math.floor(Math.random() * animals.length)];
 };
 
-export const getDisplayName = (username?: string) => {
-  return username || generateRandomName();
+export const getDisplayName = (username?: string, shortened?: boolean) => {
+  if (username) {
+    return shortened && username.length > 12 ? username.substring(0, 12) + '...' : username;
+  }
+  return generateRandomName();
 };
