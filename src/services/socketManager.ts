@@ -53,17 +53,29 @@ export class SocketManager {
     }
 
     console.log('🔌 Connecting to multiplayer server...');
-    
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+
+    // Production-first backend URL configuration
+    const backendUrl = import.meta.env.VITE_BACKEND_URL ||
+                      (import.meta.env.MODE === 'production'
+                        ? 'https://backend-coral-kappa-57.vercel.app'
+                        : 'http://localhost:3001');
+
     console.log('🔗 Connecting to:', backendUrl);
+    console.log('🌍 Environment mode:', import.meta.env.MODE);
 
     this.socket = io(backendUrl, {
-      transports: ['websocket', 'polling'],
-      timeout: 10000,
-      forceNew: true,
+      transports: ['polling', 'websocket'], // Try polling first for better compatibility
+      timeout: 20000, // Increased timeout for production
+      forceNew: false, // Allow connection reuse
       reconnection: true,
-      reconnectionDelay: 1000,
-      reconnectionAttempts: this.maxReconnectAttempts
+      reconnectionDelay: 2000, // Longer delay between reconnects
+      reconnectionAttempts: this.maxReconnectAttempts,
+      reconnectionDelayMax: 5000,
+      // Additional production options
+      upgrade: true,
+      rememberUpgrade: true,
+      autoConnect: true,
+      withCredentials: false // Disable credentials for CORS
     });
 
     // Connection events

@@ -108,6 +108,12 @@ const MultiplayerLobby: React.FC = () => {
     }
   };
 
+  const handleReconnect = () => {
+    console.log('🔄 Attempting to reconnect...');
+    setConnectionError(null);
+    socketManager.connect();
+  };
+
   const statusColor = isConnected ? 'text-green-400' : 'text-red-400';
   const statusIcon = isConnected ? '●' : '●';
 
@@ -139,7 +145,15 @@ const MultiplayerLobby: React.FC = () => {
             )}
           </div>
           {connectionError && (
-            <div className="text-red-400 text-sm">{connectionError}</div>
+            <div className="flex items-center gap-3">
+              <div className="text-red-400 text-sm">{connectionError}</div>
+              <button
+                onClick={handleReconnect}
+                className="bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-1 rounded transition-colors"
+              >
+                Retry
+              </button>
+            </div>
           )}
         </div>
       </div>
@@ -147,6 +161,18 @@ const MultiplayerLobby: React.FC = () => {
       {/* Time Control Grid */}
       <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-6">
         <h3 className="text-xl font-semibold text-white mb-6">Choose Time Control</h3>
+
+        {!isConnected && (
+          <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 mb-6">
+            <div className="flex items-center gap-2 text-red-400 mb-2">
+              <span>⚠️</span>
+              <span className="font-medium">Connection Required</span>
+            </div>
+            <p className="text-red-300 text-sm">
+              Please wait while we connect to the multiplayer server, or click Retry if connection failed.
+            </p>
+          </div>
+        )}
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {timeControls.map((tc, index) => (
