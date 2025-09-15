@@ -1,12 +1,13 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { 
-  Crown, 
-  BookOpen, 
-  Puzzle, 
-  Monitor, 
-  Trophy, 
-  BarChart3
+import {
+  Crown,
+  BookOpen,
+  Puzzle,
+  Monitor,
+  Trophy,
+  BarChart3,
+  Users
 } from 'lucide-react'
 import { Button } from '../ui/button'
 import { cn } from '../../lib/utils'
@@ -16,6 +17,7 @@ const navigation = [
   { name: 'Lessons', href: '/lessons', icon: BookOpen },
   { name: 'Puzzles', href: '/puzzles', icon: Puzzle },
   { name: 'vs Computer', href: '/play', icon: Monitor },
+  { name: 'Multiplayer', href: '/multiplayer', icon: Users },
   { name: 'Leaderboard', href: '/leaderboard', icon: Trophy }
 ]
 
