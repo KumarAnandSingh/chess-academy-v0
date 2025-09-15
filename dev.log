@@ -11,3 +11,5 @@
 3:28:37 PM [vite] (client) page reload local.html
 3:30:23 PM [vite] (client) page reload src/main.tsx
 3:32:52 PM [vite] (client) hmr update /src/index.css, /src/components/multiplayer/SimpleMultiplayerLobby.tsx
+4:59:55 PM [vite] .env changed, restarting server...
+4:59:56 PM [vite] server restarted.
