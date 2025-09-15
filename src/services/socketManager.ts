@@ -57,8 +57,8 @@ export class SocketManager {
     // Production-first backend URL configuration
     const backendUrl = import.meta.env.VITE_BACKEND_URL ||
                       (import.meta.env.MODE === 'production'
-                        ? 'https://backend-coral-kappa-57.vercel.app'
-                        : 'http://localhost:3001');
+                        ? 'https://minimal-socket-server.vercel.app'
+                        : 'http://localhost:3002');
 
     console.log('🔗 Connecting to:', backendUrl);
     console.log('🌍 Environment mode:', import.meta.env.MODE);
