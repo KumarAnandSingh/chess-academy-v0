@@ -70,7 +70,6 @@ export class SocketManager {
 
       // Timeouts optimized for serverless cold starts
       timeout: 45000, // Extended timeout for cold starts
-      connectTimeout: 45000,
 
       // Reconnection strategy for serverless
       reconnection: true,
@@ -159,14 +158,14 @@ export class SocketManager {
       console.log('🏓 Pong received:', data);
     });
 
-    // Monitor transport changes
-    this.socket.io.on('upgrade', () => {
-      console.log('⬆️ Transport upgraded to:', this.socket?.io.engine.transport.name);
-    });
+    // Monitor transport changes (commented out due to TypeScript compatibility)
+    // this.socket.io.on('upgrade', () => {
+    //   console.log('⬆️ Transport upgraded to:', this.socket?.io.engine.transport.name);
+    // });
 
-    this.socket.io.on('upgradeError', (error) => {
-      console.warn('⚠️ Transport upgrade failed:', error.message);
-    });
+    // this.socket.io.on('upgradeError', (error) => {
+    //   console.warn('⚠️ Transport upgrade failed:', error.message);
+    // });
 
     // Game events
     this.socket.on('authenticated', (data) => {
