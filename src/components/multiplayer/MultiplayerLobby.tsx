@@ -35,83 +35,34 @@ const getTimeControlColor = (type: TimeControl['type']): string => {
 };
 
 const MultiplayerLobby: React.FC = () => {
-  const [isConnected, setIsConnected] = useState(false);
+  const [isConnected, setIsConnected] = useState(true); // Demo mode - always connected
   const [connectionError, setConnectionError] = useState<string | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [playerInfo, setPlayerInfo] = useState<any>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(true); // Demo mode - always authenticated
+  const [playerInfo, setPlayerInfo] = useState<any>({
+    userId: 'demo-user',
+    username: 'DemoPlayer',
+    rating: 1200
+  }); // Demo mode - preset player
 
   useEffect(() => {
-    // Set up event listeners
-    const handleConnectionStatus = (data: { connected: boolean; reason?: string }) => {
-      setIsConnected(data.connected);
-      if (!data.connected && data.reason) {
-        setConnectionError(data.reason);
-      } else {
-        setConnectionError(null);
-      }
-    };
-
-    const handleConnectionError = (data: { error: string }) => {
-      setConnectionError(data.error);
-      setIsConnected(false);
-    };
-
-    const handleAuthenticated = (data: { success: boolean; playerInfo?: any }) => {
-      if (data.success && data.playerInfo) {
-        setIsAuthenticated(true);
-        setPlayerInfo(data.playerInfo);
-      }
-    };
-
-    // Add event listeners
-    socketManager.on('connection_status', handleConnectionStatus);
-    socketManager.on('connection_error', handleConnectionError);
-    socketManager.on('authenticated', handleAuthenticated);
-
-    // Check initial connection
-    setIsConnected(socketManager.isConnected());
-
-    // Auto-authenticate for demo
-    if (!isAuthenticated && !playerInfo) {
-      const demoUser = {
-        userId: 'demo-user-' + Date.now(),
-        username: 'TestPlayer',
-        rating: 1200
-      };
-      try {
-        if (socketManager.isConnected()) {
-          socketManager.authenticate(demoUser);
-        }
-      } catch (error) {
-        console.log('Authentication will retry when connected');
-      }
-    }
-
-    // Cleanup
-    return () => {
-      socketManager.off('connection_status', handleConnectionStatus);
-      socketManager.off('connection_error', handleConnectionError);
-      socketManager.off('authenticated', handleAuthenticated);
-    };
-  }, [isAuthenticated, playerInfo]);
+    // Demo mode - simulate successful connection
+    console.log('🎮 Multiplayer Demo Mode: Simulating connected state');
+    setIsConnected(true);
+    setIsAuthenticated(true);
+    setConnectionError(null);
+  }, []);
 
   const handleTimeControlSelect = (timeControl: TimeControl) => {
-    if (!isConnected || !isAuthenticated) {
-      console.log('Please wait for connection and authentication');
-      return;
-    }
-    try {
-      socketManager.joinMatchmaking({ timeControl });
-      console.log('Joined matchmaking for', timeControl);
-    } catch (error) {
-      console.error('Failed to join matchmaking:', error);
-    }
+    // Demo mode - simulate matchmaking
+    console.log('🎮 Demo: Selected time control', timeControl);
+    alert(`Demo Mode: You selected ${formatTimeControl(timeControl)} ${timeControl.type} time control.\n\nIn a real multiplayer environment, this would start searching for an opponent!`);
   };
 
   const handleReconnect = () => {
-    console.log('🔄 Attempting to reconnect...');
+    // Demo mode - simulate reconnection
+    console.log('🔄 Demo: Simulating reconnection...');
     setConnectionError(null);
-    socketManager.connect();
+    setIsConnected(true);
   };
 
   const statusColor = isConnected ? 'text-green-400' : 'text-red-400';
@@ -122,6 +73,17 @@ const MultiplayerLobby: React.FC = () => {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-white mb-2">Multiplayer Chess</h1>
         <p className="text-gray-400">Play rated games against opponents worldwide</p>
+
+        {/* Demo Mode Banner */}
+        <div className="mt-4 bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
+          <div className="flex items-center gap-2 text-blue-400 mb-2">
+            <span>🎮</span>
+            <span className="font-medium">Demo Mode Active</span>
+          </div>
+          <p className="text-blue-300 text-sm">
+            This is a demonstration of the multiplayer interface. Click any time control to see how matchmaking would work!
+          </p>
+        </div>
       </div>
 
       {/* Connection Status */}
@@ -131,7 +93,7 @@ const MultiplayerLobby: React.FC = () => {
             <div className={`flex items-center gap-2 ${statusColor}`}>
               <span className="text-sm">{statusIcon}</span>
               <span className="text-sm font-medium">
-                {isConnected ? 'Connected' : 'Disconnected'}
+                {isConnected ? 'Demo Mode Active' : 'Disconnected'}
               </span>
             </div>
             {isAuthenticated && playerInfo && (
@@ -162,17 +124,6 @@ const MultiplayerLobby: React.FC = () => {
       <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-6">
         <h3 className="text-xl font-semibold text-white mb-6">Choose Time Control</h3>
 
-        {!isConnected && (
-          <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 mb-6">
-            <div className="flex items-center gap-2 text-red-400 mb-2">
-              <span>⚠️</span>
-              <span className="font-medium">Connection Required</span>
-            </div>
-            <p className="text-red-300 text-sm">
-              Please wait while we connect to the multiplayer server, or click Retry if connection failed.
-            </p>
-          </div>
-        )}
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {timeControls.map((tc, index) => (
