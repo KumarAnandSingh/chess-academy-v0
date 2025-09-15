@@ -54,35 +54,66 @@ export class SocketManager {
 
     console.log('🔌 Connecting to multiplayer server...');
 
-    // Production-first backend URL configuration
+    // Production-first backend URL configuration with fallbacks
     const backendUrl = import.meta.env.VITE_BACKEND_URL ||
                       (import.meta.env.MODE === 'production'
-                        ? 'https://minimal-socket-server.vercel.app'
+                        ? 'https://web-production-4fb4.up.railway.app'
                         : 'http://localhost:3002');
 
     console.log('🔗 Connecting to:', backendUrl);
     console.log('🌍 Environment mode:', import.meta.env.MODE);
 
     this.socket = io(backendUrl, {
-      transports: ['polling', 'websocket'], // Try polling first for better compatibility
-      timeout: 20000, // Increased timeout for production
-      forceNew: false, // Allow connection reuse
+      // Serverless-optimized transport configuration
+      transports: ['polling'], // Start with polling only for Vercel compatibility
+      forceNew: false,
+
+      // Timeouts optimized for serverless cold starts
+      timeout: 45000, // Extended timeout for cold starts
+      connectTimeout: 45000,
+
+      // Reconnection strategy for serverless
       reconnection: true,
-      reconnectionDelay: 2000, // Longer delay between reconnects
-      reconnectionAttempts: this.maxReconnectAttempts,
-      reconnectionDelayMax: 5000,
-      // Additional production options
-      upgrade: true,
-      rememberUpgrade: true,
+      reconnectionDelay: 1000, // Start with shorter delay
+      reconnectionDelayMax: 10000, // Max 10 second delay
+      reconnectionAttempts: 10, // More attempts for unstable serverless
+      randomizationFactor: 0.5, // Add jitter to reconnection attempts
+
+      // Serverless-friendly options
+      upgrade: false, // Disable upgrade to websockets initially
+      rememberUpgrade: false, // Don't remember transport upgrades
       autoConnect: true,
-      withCredentials: false // Disable credentials for CORS
+      withCredentials: false,
+
+      // Additional headers for CORS
+      extraHeaders: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE,OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, Content-Length, X-Requested-With'
+      },
+
+      // Query parameters for debugging
+      query: {
+        client: 'chess-academy',
+        version: '1.0.0',
+        transport: 'polling-first'
+      }
     });
 
-    // Connection events
+    // Enhanced connection events for serverless
     this.socket.on('connect', () => {
-      console.log('✅ Connected to multiplayer server');
+      console.log('✅ Connected to multiplayer server, Socket ID:', this.socket?.id);
+      console.log('🚀 Transport:', this.socket?.io.engine.transport.name);
       this.reconnectAttempts = 0;
       this.emit('connection_status', { connected: true });
+
+      // Send test ping immediately on connection
+      setTimeout(() => {
+        if (this.socket?.connected) {
+          console.log('🏓 Testing ping...');
+          this.socket.emit('ping', { timestamp: Date.now() });
+        }
+      }, 1000);
     });
 
     this.socket.on('disconnect', (reason) => {
@@ -91,18 +122,50 @@ export class SocketManager {
     });
 
     this.socket.on('connect_error', (error) => {
-      console.error('❌ Connection error:', error);
-      this.emit('connection_error', { error: error.message });
+      console.error('❌ Connection error:', error.message || error);
+      this.reconnectAttempts++;
+
+      // Exponential backoff for serverless
+      const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 10000);
+      console.log(`⏳ Will retry in ${delay}ms (attempt ${this.reconnectAttempts})`);
+
+      this.emit('connection_error', { error: error.message || error.toString() });
     });
 
     this.socket.on('reconnect', (attemptNumber) => {
       console.log('🔄 Reconnected after', attemptNumber, 'attempts');
+      console.log('🚀 Transport after reconnect:', this.socket?.io.engine.transport.name);
       this.emit('reconnected', { attemptNumber });
+    });
+
+    this.socket.on('reconnect_attempt', (attemptNumber) => {
+      console.log(`🔄 Reconnection attempt ${attemptNumber}/${this.maxReconnectAttempts}`);
     });
 
     this.socket.on('reconnect_failed', () => {
       console.error('❌ Failed to reconnect after', this.maxReconnectAttempts, 'attempts');
       this.emit('reconnect_failed', {});
+    });
+
+    // Handle serverless heartbeat
+    this.socket.on('heartbeat', (data) => {
+      console.log('💓 Heartbeat received:', data.timestamp);
+      // Respond to keep connection alive
+      this.socket?.emit('heartbeat_ack', { timestamp: Date.now() });
+    });
+
+    // Handle pong responses
+    this.socket.on('pong', (data) => {
+      console.log('🏓 Pong received:', data);
+    });
+
+    // Monitor transport changes
+    this.socket.io.on('upgrade', () => {
+      console.log('⬆️ Transport upgraded to:', this.socket?.io.engine.transport.name);
+    });
+
+    this.socket.io.on('upgradeError', (error) => {
+      console.warn('⚠️ Transport upgrade failed:', error.message);
     });
 
     // Game events
