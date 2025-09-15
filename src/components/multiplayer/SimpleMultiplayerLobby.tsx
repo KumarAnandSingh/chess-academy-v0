@@ -34,7 +34,9 @@ const SimpleMultiplayerLobby: React.FC = () => {
 
   // WebSocket connection setup
   useEffect(() => {
-    const newSocket = io('http://localhost:3002');
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3002';
+    console.log('🔗 Connecting to backend:', backendUrl);
+    const newSocket = io(backendUrl);
     setSocket(newSocket);
     setConnectionStatus('connecting');
 
