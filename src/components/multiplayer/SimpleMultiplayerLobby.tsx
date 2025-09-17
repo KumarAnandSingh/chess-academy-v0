@@ -68,11 +68,13 @@ const SimpleMultiplayerLobby: React.FC = () => {
       console.log('🔍 Socket preservation result:', preservationSuccess);
       console.log('🔍 Connection diagnostics before navigation:', socketManager.getConnectionDiagnostics());
 
-      // Add small delay to ensure clean transition
-      setTimeout(() => {
-        console.log('🗺 Navigating to game:', data.gameId);
-        navigate(`/game/${data.gameId}`);
-      }, 100);
+      // CRITICAL FIX: Set flag to indicate this is a navigation from lobby
+      sessionStorage.setItem('fromLobbyNavigation', 'true');
+      console.log('🏷️ Set fromLobbyNavigation flag for proper join_game event');
+
+      // Navigate immediately - the GamePage will handle join_game properly
+      console.log('🗺 Navigating to game:', data.gameId);
+      navigate(`/game/${data.gameId}`);
     };
 
     const matchmakingJoinedCallback = (data: any) => {

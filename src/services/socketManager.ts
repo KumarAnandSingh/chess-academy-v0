@@ -229,7 +229,13 @@ export class SocketManager {
 
     this.socket.on('game_joined', (data) => {
       console.log('🎮 Game joined successfully:', data);
+      console.log('✅ join_game event was properly received by backend');
       this.emitInternal('game_joined', data);
+    });
+
+    this.socket.on('join_game_error', (data) => {
+      console.error('❌ Failed to join game:', data);
+      this.emitInternal('join_game_error', data);
     });
 
     this.socket.on('game_rejoined', (data) => {

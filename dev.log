@@ -67,3 +67,18 @@
 11:05:57 PM [vite] (client) page reload test-production-live.html
 11:38:39 PM [vite] (client) page reload debug-frontend-auth-issue.html
 6:34:48 AM [vite] (client) page reload test-game-navigation-fix.html
+12:40:17 AM [vite] (client) hmr update /src/index.css
+12:40:29 AM [vite] (client) hmr update /src/index.css
+12:40:33 AM [vite] (client) hmr update /src/index.css
+12:40:39 AM [vite] (client) hmr update /src/index.css
+12:40:50 AM [vite] (client) hmr update /src/index.css
+12:40:55 AM [vite] (client) hmr update /src/index.css
+12:41:53 AM [vite] (client) hmr update /src/index.css
+12:47:43 AM [vite] (client) hmr update /src/index.css, /src/components/multiplayer/ImprovedLiveChessGame.tsx
+12:47:55 AM [vite] (client) hmr update /src/index.css, /src/components/multiplayer/SimpleMultiplayerLobby.tsx
+12:48:03 AM [vite] (client) hmr update /src/index.css, /src/pages/GamePage.tsx, /src/components/multiplayer/ImprovedLiveChessGame.tsx, /src/components/multiplayer/SimpleMultiplayerLobby.tsx
+12:48:17 AM [vite] (client) hmr update /src/index.css, /src/components/multiplayer/ImprovedLiveChessGame.tsx
+12:48:28 AM [vite] (client) hmr update /src/index.css, /src/components/multiplayer/ImprovedLiveChessGame.tsx
+12:48:46 AM [vite] (client) hmr update /src/index.css, /src/components/multiplayer/ImprovedLiveChessGame.tsx
+12:48:54 AM [vite] (client) hmr update /src/index.css, /src/components/multiplayer/ImprovedLiveChessGame.tsx
+12:49:02 AM [vite] (client) hmr update /src/index.css, /src/components/multiplayer/ImprovedLiveChessGame.tsx

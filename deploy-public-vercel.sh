@@ -18,7 +18,7 @@ rm -f vercel.json
 echo "📝 Creating public Vercel configuration..."
 cat > vercel.json << 'EOF'
 {
-  "buildCommand": "npm run build",
+  "buildCommand": "npx vite build --mode production",
   "outputDirectory": "dist",
   "devCommand": "npm run dev",
   "installCommand": "npm install",
@@ -48,15 +48,13 @@ cat > vercel.json << 'EOF'
         }
       ]
     }
-  ],
-  "functions": {},
-  "routes": []
+  ]
 }
 EOF
 
 # Build the project
 echo "🏗️  Building project..."
-npm run build
+npx vite build --mode production
 
 # Deploy with public flag
 echo "🚀 Deploying with public access..."

@@ -123,7 +123,17 @@ const ImprovedLiveChessGame: React.FC<ImprovedLiveChessGameProps> = ({ gameId })
     };
 
     const gameJoinedCallback = (data: any) => {
-      console.log('🎮 Game joined successfully:', data);
+      console.log('✅ Game joined successfully:', data);
+      console.log('🎯 JOIN SUCCESS: Backend confirmed join_game event received');
+      console.log('🔍 Join success diagnostics:', socketManager.getConnectionDiagnostics());
+
+      // Clear join timeout since we got successful response
+      if ((window as any).joinGameTimeout) {
+        clearTimeout((window as any).joinGameTimeout);
+        (window as any).joinGameTimeout = null;
+        console.log('🔄 Cleared join_game timeout - success!');
+      }
+
       if (data.gameState) {
         setGameData(data.gameState);
         setGameStatus('active');
@@ -132,6 +142,8 @@ const ImprovedLiveChessGame: React.FC<ImprovedLiveChessGameProps> = ({ gameId })
         chess.load(data.gameState.position);
         setDisplayWhiteTime(data.gameState.whiteTime);
         setDisplayBlackTime(data.gameState.blackTime);
+        setConnectionStatus('connected');
+        console.log('🎮 Game state loaded, player assigned as:', data.playerColor);
       }
     };
 
@@ -208,6 +220,17 @@ const ImprovedLiveChessGame: React.FC<ImprovedLiveChessGameProps> = ({ gameId })
       setChatMessages(prev => [...prev, data.message]);
     };
 
+    const joinGameErrorCallback = (data: any) => {
+      console.error('❌ Join game failed:', data);
+      setConnectionStatus('disconnected');
+      setGameStatus('waiting');
+      // Retry joining if connection is still healthy
+      if (socketManager.isConnected() && socketManager.isConnectionHealthy()) {
+        console.log('🔄 Retrying join_game after error...');
+        setTimeout(() => joinGameWithRetry(), 2000);
+      }
+    };
+
     // Listen to connection events with proper callback references
     socketManager.on('connection_status', connectionStatusCallback);
     socketManager.on('game_started', gameStartedCallback);
@@ -216,41 +239,95 @@ const ImprovedLiveChessGame: React.FC<ImprovedLiveChessGameProps> = ({ gameId })
     socketManager.on('move_made', moveMadeCallback);
     socketManager.on('game_ended', gameEndedCallback);
     socketManager.on('chat_message', chatMessageCallback);
+    socketManager.on('join_game_error', joinGameErrorCallback);
 
-    // Enhanced game joining logic with better error handling
-    const joinGameWithRetry = () => {
+    // Enhanced game joining logic with proper timing and error handling
+    const joinGameWithRetry = (retryCount = 0) => {
       if (!socketManager.isConnected()) {
         console.log('⚠️ Socket not connected, attempting reconnection before joining game');
+        if (retryCount < 3) {
+          setTimeout(() => {
+            if (!socketManager.isConnected()) {
+              socketManager.forceReconnect();
+            }
+            joinGameWithRetry(retryCount + 1);
+          }, 1000 * (retryCount + 1));
+        }
+        return;
+      }
+
+      if (!socketManager.isConnectionHealthy()) {
+        console.log('⚠️ Socket connected but unhealthy, forcing reconnection');
         socketManager.forceReconnect();
         return;
       }
 
-      console.log('🎮 Socket connected, joining game:', gameId);
+      console.log('🎮 Socket connected and healthy, joining game:', gameId);
+      console.log('🔍 Pre-join diagnostics:', socketManager.getConnectionDiagnostics());
+
       try {
-        // Emit both events to ensure backend handles properly
-        socketManager.emit('join_game', { gameId });
-        // Also emit reconnect_to_game in case this is a navigation from lobby
-        socketManager.emit('reconnect_to_game', { gameId });
-        console.log('✅ Join game events emitted successfully');
+        // CRITICAL FIX: Only emit the correct event based on context
+        // If we just navigated from lobby after game_started, use join_game
+        // If we're reconnecting to an existing game, use reconnect_to_game
+        const isFromLobbyNavigation = sessionStorage.getItem('fromLobbyNavigation') === 'true';
+
+        if (isFromLobbyNavigation) {
+          console.log('🎯 Emitting join_game (navigation from lobby)');
+          socketManager.emit('join_game', { gameId });
+          // Clear the flag
+          sessionStorage.removeItem('fromLobbyNavigation');
+        } else {
+          console.log('🔄 Emitting reconnect_to_game (page refresh/direct access)');
+          socketManager.emit('reconnect_to_game', { gameId });
+        }
+
+        console.log('✅ Join game event emitted successfully');
+
+        // CRITICAL: Set timeout to detect if backend doesn't respond to join_game
+        const joinTimeout = setTimeout(() => {
+          if (gameStatus === 'waiting' && connectionStatus !== 'disconnected') {
+            console.warn('⚠️ No response to join_game after 10 seconds, retrying...');
+            console.log('🔍 Timeout diagnostics:', socketManager.getConnectionDiagnostics());
+            if (socketManager.isConnected() && socketManager.isConnectionHealthy()) {
+              joinGameWithRetry(retryCount + 1);
+            }
+          }
+        }, 10000); // 10 second timeout
+
+        // Store timeout for cleanup
+        (window as any).joinGameTimeout = joinTimeout;
       } catch (error) {
         console.error('❌ Failed to join game:', error);
         setConnectionStatus('disconnected');
+
+        // Retry on error if we haven't exceeded retry limit
+        if (retryCount < 3) {
+          setTimeout(() => joinGameWithRetry(retryCount + 1), 2000);
+        }
       }
     };
 
-    // Add delay to ensure clean navigation
+    // CRITICAL FIX: Proper timing for join_game after navigation
+    // Wait for React navigation to complete and socket to stabilize
     const joinTimer = setTimeout(() => {
-      joinGameWithRetry();
-    }, 100);
+      // Double-check socket health before joining
+      if (socketManager.isConnected() && socketManager.isConnectionHealthy()) {
+        joinGameWithRetry();
+      } else {
+        console.log('🔄 Socket not ready, waiting for connection...');
+        // Connection monitoring will trigger join when ready
+      }
+    }, 250); // Increased delay for stable navigation
 
-    // Retry logic for connection establishment
+    // Enhanced retry logic for connection establishment
     const connectionCheckInterval = setInterval(() => {
-      if (socketManager.isConnected() && connectionStatus === 'connecting') {
-        console.log('🔄 Connection established during game loading, joining game');
+      if (socketManager.isConnected() && socketManager.isConnectionHealthy() &&
+          (connectionStatus === 'connecting' || gameStatus === 'waiting')) {
+        console.log('🔄 Connection established and healthy during game loading, joining game');
         joinGameWithRetry();
         clearInterval(connectionCheckInterval);
       }
-    }, 1000);
+    }, 500); // More frequent checks for faster joining
 
     // Cleanup intervals
     const cleanupTimeout = setTimeout(() => {
@@ -263,6 +340,12 @@ const ImprovedLiveChessGame: React.FC<ImprovedLiveChessGameProps> = ({ gameId })
       clearInterval(connectionCheckInterval);
       clearTimeout(cleanupTimeout);
 
+      // Clean up join timeout if it exists
+      if ((window as any).joinGameTimeout) {
+        clearTimeout((window as any).joinGameTimeout);
+        (window as any).joinGameTimeout = null;
+      }
+
       // CRITICAL FIX: Clean up only specific callbacks for this component
       socketManager.removeCallback('connection_status', connectionStatusCallback);
       socketManager.removeCallback('game_started', gameStartedCallback);
@@ -271,6 +354,7 @@ const ImprovedLiveChessGame: React.FC<ImprovedLiveChessGameProps> = ({ gameId })
       socketManager.removeCallback('move_made', moveMadeCallback);
       socketManager.removeCallback('game_ended', gameEndedCallback);
       socketManager.removeCallback('chat_message', chatMessageCallback);
+      socketManager.removeCallback('join_game_error', joinGameErrorCallback);
 
       console.log('🧹 Game cleanup: Removed specific callbacks, preserved socket connection');
     };
