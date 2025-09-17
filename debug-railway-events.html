@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Railway Backend Event Debugger</title>
+    <style>
+        body {
+            font-family: monospace;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #00ff00;
+        }
+        .container {
+            background: #000;
+            border: 1px solid #00ff00;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .log {
+            background: #111;
+            border: 1px solid #333;
+            padding: 15px;
+            height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            font-size: 12px;
+        }
+        .button {
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .button:hover { background: #00aa00; }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 3px;
+        }
+        .connected { background: #004400; border: 1px solid #00ff00; }
+        .disconnected { background: #440000; border: 1px solid #ff0000; color: #ff0000; }
+        .testing { background: #444400; border: 1px solid #ffff00; color: #ffff00; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Railway Backend Event Debugger</h1>
+    <div class="container">
+        <h3>Backend: https://web-production-4fb4.up.railway.app</h3>
+        <div id="status" class="status testing">Initializing...</div>
+
+        <div>
+            <button class="button" onclick="testConnection()">Test Connection</button>
+            <button class="button" onclick="testAuthentication()">Test Authentication</button>
+            <button class="button" onclick="testMatchmaking()">Test Matchmaking</button>
+            <button class="button" onclick="testAllEvents()">Test All Events</button>
+            <button class="button" onclick="clearLog()">Clear Log</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <h3>📋 Event Log</h3>
+        <div id="log" class="log">Starting Railway backend event debugging...\n</div>
+    </div>
+
+    <div class="container">
+        <h3>🎯 Specific Issues Being Tested</h3>
+        <div style="background: #222; padding: 15px; border-radius: 3px;">
+            <div><strong>1. Authentication Issue:</strong> "Authenticating..." hangs</div>
+            <div><strong>2. Matchmaking Issue:</strong> Times out after 10 seconds</div>
+            <div><strong>3. Event Response:</strong> Backend not responding to events</div>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script>
+        let socket = null;
+        const logEl = document.getElementById('log');
+        const statusEl = document.getElementById('status');
+
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            logEl.textContent += `[${timestamp}] ${message}\n`;
+            logEl.scrollTop = logEl.scrollHeight;
+            console.log(`[Railway Debug] ${message}`);
+        }
+
+        function updateStatus(message, className) {
+            statusEl.textContent = message;
+            statusEl.className = `status ${className}`;
+        }
+
+        function clearLog() {
+            logEl.textContent = '';
+        }
+
+        function testConnection() {
+            updateStatus('Testing connection...', 'testing');
+            log('=== CONNECTION TEST START ===');
+
+            if (socket) {
+                socket.removeAllListeners();
+                socket.disconnect();
+            }
+
+            socket = io('https://web-production-4fb4.up.railway.app', {
+                transports: ['polling', 'websocket'],
+                timeout: 20000,
+                forceNew: true,
+                withCredentials: false
+            });
+
+            socket.on('connect', () => {
+                log('✅ CONNECTED to Railway backend');
+                log(`   Socket ID: ${socket.id}`);
+                log(`   Transport: ${socket.io.engine.transport.name}`);
+                updateStatus(`Connected: ${socket.id}`, 'connected');
+            });
+
+            socket.on('disconnect', (reason) => {
+                log(`❌ DISCONNECTED: ${reason}`);
+                updateStatus(`Disconnected: ${reason}`, 'disconnected');
+            });
+
+            socket.on('connect_error', (error) => {
+                log(`❌ CONNECTION ERROR: ${error.message}`);
+                updateStatus(`Error: ${error.message}`, 'disconnected');
+            });
+
+            // Listen for ALL possible events
+            const possibleEvents = [
+                'authenticated', 'authentication_error', 'auth_success',
+                'matchmaking_joined', 'matchmaking_queued', 'matchmaking_error',
+                'game_found', 'game_started', 'match_found',
+                'pong', 'heartbeat', 'server_message', 'error'
+            ];
+
+            possibleEvents.forEach(event => {
+                socket.on(event, (data) => {
+                    log(`📨 RECEIVED EVENT '${event}': ${JSON.stringify(data)}`);
+                });
+            });
+        }
+
+        function testAuthentication() {
+            if (!socket || !socket.connected) {
+                log('❌ Must connect first!');
+                return;
+            }
+
+            log('=== AUTHENTICATION TEST START ===');
+            log('🔐 Sending authenticate event...');
+
+            const userData = {
+                userId: 'debug-user-' + Date.now(),
+                username: 'RailwayDebugger',
+                rating: 1500
+            };
+
+            log(`📤 SENDING: authenticate with data: ${JSON.stringify(userData)}`);
+            socket.emit('authenticate', userData);
+
+            // Set timeout to see if we get a response
+            setTimeout(() => {
+                log('⏰ Authentication timeout check (5 seconds elapsed)');
+            }, 5000);
+
+            setTimeout(() => {
+                log('⏰ Authentication timeout check (10 seconds elapsed)');
+            }, 10000);
+        }
+
+        function testMatchmaking() {
+            if (!socket || !socket.connected) {
+                log('❌ Must connect first!');
+                return;
+            }
+
+            log('=== MATCHMAKING TEST START ===');
+            log('🎯 Sending join_matchmaking event...');
+
+            const matchmakingData = {
+                timeControl: {
+                    initial: 300,
+                    increment: 3,
+                    type: 'blitz'
+                },
+                ratingRange: 200,
+                color: 'random'
+            };
+
+            log(`📤 SENDING: join_matchmaking with data: ${JSON.stringify(matchmakingData)}`);
+            socket.emit('join_matchmaking', matchmakingData);
+
+            // Set timeout to see if we get a response
+            setTimeout(() => {
+                log('⏰ Matchmaking timeout check (5 seconds elapsed)');
+            }, 5000);
+
+            setTimeout(() => {
+                log('⏰ Matchmaking timeout check (10 seconds elapsed)');
+            }, 10000);
+
+            setTimeout(() => {
+                log('⏰ Matchmaking timeout check (15 seconds elapsed)');
+            }, 15000);
+        }
+
+        function testAllEvents() {
+            if (!socket || !socket.connected) {
+                log('❌ Must connect first!');
+                return;
+            }
+
+            log('=== COMPREHENSIVE EVENT TEST START ===');
+
+            // Test ping first
+            log('📤 SENDING: ping');
+            socket.emit('ping', { timestamp: Date.now() });
+
+            setTimeout(() => {
+                // Test authentication
+                log('📤 SENDING: authenticate');
+                socket.emit('authenticate', {
+                    userId: 'test-all-' + Date.now(),
+                    username: 'ComprehensiveTester',
+                    rating: 1600
+                });
+            }, 2000);
+
+            setTimeout(() => {
+                // Test matchmaking
+                log('📤 SENDING: join_matchmaking');
+                socket.emit('join_matchmaking', {
+                    timeControl: { initial: 180, increment: 2, type: 'blitz' },
+                    ratingRange: 300
+                });
+            }, 5000);
+
+            // Test other events that might exist
+            setTimeout(() => {
+                const testEvents = [
+                    'get_stats',
+                    'get_leaderboard',
+                    'get_active_games',
+                    'hello',
+                    'test'
+                ];
+
+                testEvents.forEach((event, index) => {
+                    setTimeout(() => {
+                        log(`📤 SENDING: ${event}`);
+                        socket.emit(event, { test: true, timestamp: Date.now() });
+                    }, index * 1000);
+                });
+            }, 8000);
+        }
+
+        // Auto-start connection test
+        window.addEventListener('load', () => {
+            log('🚀 Railway Backend Event Debugger initialized');
+            log('📍 Target: https://web-production-4fb4.up.railway.app');
+            testConnection();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Production Live Test - studyify.in</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #1a1a1a; color: #fff; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #4CAF50; }
+        .error { background: #f44336; }
+        .warning { background: #ff9800; }
+        .info { background: #2196F3; }
+        pre { background: #333; padding: 10px; border-radius: 5px; overflow-x: auto; }
+        button { padding: 10px 20px; margin: 5px; background: #2196F3; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #1976D2; }
+        #logs { max-height: 300px; overflow-y: auto; background: #222; padding: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Production Live Test - studyify.in Multiplayer</h1>
+
+    <div id="status" class="status info">Initializing test...</div>
+
+    <div>
+        <button onclick="testProductionSite()">Test Production Site</button>
+        <button onclick="testSocketConnection()">Test Socket.IO Connection</button>
+        <button onclick="clearLogs()">Clear Logs</button>
+    </div>
+
+    <h2>Test Results:</h2>
+    <div id="results"></div>
+
+    <h2>Connection Logs:</h2>
+    <div id="logs"></div>
+
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+    <script>
+        let socket = null;
+        const PRODUCTION_URL = 'https://www.studyify.in/multiplayer';
+        const RAILWAY_BACKEND = 'https://web-production-4fb4.up.railway.app';
+
+        function log(message, type = 'info') {
+            const logs = document.getElementById('logs');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `<span style="color: #888">[${timestamp}]</span> <span style="color: ${type === 'error' ? '#f44336' : type === 'success' ? '#4CAF50' : '#2196F3'}">${message}</span>`;
+            logs.appendChild(logEntry);
+            logs.scrollTop = logs.scrollHeight;
+            console.log(`[${timestamp}] ${message}`);
+        }
+
+        function addResult(title, content, type = 'info') {
+            const results = document.getElementById('results');
+            const result = document.createElement('div');
+            result.className = `status ${type}`;
+            result.innerHTML = `<strong>${title}:</strong> ${content}`;
+            results.appendChild(result);
+        }
+
+        function updateStatus(message, type = 'info') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+        }
+
+        function clearLogs() {
+            document.getElementById('logs').innerHTML = '';
+            document.getElementById('results').innerHTML = '';
+        }
+
+        async function testProductionSite() {
+            log('🚀 Testing production site accessibility...', 'info');
+            updateStatus('Testing production site...', 'warning');
+
+            try {
+                // Test if the production site is accessible
+                const response = await fetch(PRODUCTION_URL, {
+                    method: 'GET',
+                    mode: 'no-cors' // Avoid CORS issues for this test
+                });
+
+                log('✅ Production site is accessible', 'success');
+                addResult('Production Site', 'Accessible at https://www.studyify.in/multiplayer', 'success');
+
+                // Test if we can reach the backend
+                const backendResponse = await fetch(RAILWAY_BACKEND);
+                const backendData = await backendResponse.json();
+
+                log(`✅ Railway backend is responsive: ${JSON.stringify(backendData)}`, 'success');
+                addResult('Railway Backend', `Status: ${backendData.status}, Message: ${backendData.message}`, 'success');
+
+                updateStatus('Production site and backend are accessible!', 'success');
+
+            } catch (error) {
+                log(`❌ Error testing production site: ${error.message}`, 'error');
+                addResult('Production Site Test', `Error: ${error.message}`, 'error');
+                updateStatus('Production site test failed', 'error');
+            }
+        }
+
+        async function testSocketConnection() {
+            log('🔌 Testing Socket.IO connection to Railway backend...', 'info');
+            updateStatus('Testing Socket.IO connection...', 'warning');
+
+            if (socket) {
+                socket.disconnect();
+                socket = null;
+            }
+
+            try {
+                socket = io(RAILWAY_BACKEND, {
+                    transports: ['polling', 'websocket'],
+                    timeout: 20000,
+                    reconnection: true,
+                    reconnectionDelay: 2000,
+                    reconnectionAttempts: 5
+                });
+
+                socket.on('connect', () => {
+                    log(`✅ Successfully connected to Railway backend! Socket ID: ${socket.id}`, 'success');
+                    log(`🚀 Transport: ${socket.io.engine.transport.name}`, 'info');
+                    addResult('Socket.IO Connection', `Connected with ID: ${socket.id}, Transport: ${socket.io.engine.transport.name}`, 'success');
+                    updateStatus('Socket.IO connection successful!', 'success');
+
+                    // Test authentication
+                    const testUser = {
+                        userId: 'test-user-' + Math.random().toString(36).substr(2, 6),
+                        username: 'TestPlayer' + Math.floor(Math.random() * 1000),
+                        rating: 1200
+                    };
+
+                    log(`🔐 Testing authentication with user: ${testUser.username}`, 'info');
+                    socket.emit('authenticate', testUser);
+                });
+
+                socket.on('authenticated', (data) => {
+                    log(`🔐 Authentication successful: ${JSON.stringify(data)}`, 'success');
+                    addResult('Authentication', `Success: ${data.success}`, 'success');
+                });
+
+                socket.on('disconnect', (reason) => {
+                    log(`❌ Disconnected: ${reason}`, 'error');
+                    addResult('Disconnection', `Reason: ${reason}`, 'warning');
+                });
+
+                socket.on('connect_error', (error) => {
+                    log(`❌ Connection error: ${error.message}`, 'error');
+                    addResult('Connection Error', error.message, 'error');
+                    updateStatus('Socket.IO connection failed', 'error');
+                });
+
+                socket.on('pong', (data) => {
+                    const latency = Date.now() - data.timestamp;
+                    log(`🏓 Pong received, latency: ${latency}ms`, 'success');
+                });
+
+                // Send a test ping after connection
+                setTimeout(() => {
+                    if (socket && socket.connected) {
+                        log('🏓 Sending test ping...', 'info');
+                        socket.emit('ping', { timestamp: Date.now() });
+                    }
+                }, 2000);
+
+            } catch (error) {
+                log(`❌ Socket.IO test failed: ${error.message}`, 'error');
+                addResult('Socket.IO Test', `Failed: ${error.message}`, 'error');
+                updateStatus('Socket.IO test failed', 'error');
+            }
+        }
+
+        // Auto-start tests
+        window.addEventListener('load', () => {
+            log('🚀 Auto-starting production tests...', 'info');
+            setTimeout(testProductionSite, 1000);
+            setTimeout(testSocketConnection, 3000);
+        });
+    </script>
+</body>
+</html>

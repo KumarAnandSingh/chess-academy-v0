@@ -19,3 +19,51 @@
 10:00:24 PM [vite] server restarted.
 10:05:10 PM [vite] .env changed, restarting server...
 10:05:10 PM [vite] server restarted.
+10:16:44 PM [vite] .env changed, restarting server...
+10:16:44 PM [vite] server restarted.
+10:19:38 PM [vite] .env changed, restarting server...
+10:19:38 PM [vite] server restarted.
+10:25:08 PM [vite] .env changed, restarting server...
+10:25:08 PM [vite] server restarted.
+10:30:19 PM [vite] vite.config.ts changed, restarting server...
+🔧 Vite Config - Mode: development
+🔧 Vite Config - Backend URL: https://minimal-socket-server.vercel.app
+10:30:19 PM [vite] server restarted.
+10:30:24 PM [vite] .env.local changed, restarting server...
+10:30:24 PM [vite] .env.local changed, restarting server...
+🔧 Vite Config - Mode: development
+🔧 Vite Config - Backend URL: https://minimal-socket-server.vercel.app
+10:30:24 PM [vite] server restarted.
+10:30:48 PM [vite] vite.config.ts changed, restarting server...
+10:30:48 PM [vite] server restarted.
+10:34:07 PM [vite] (client) page reload socket-test.html
+10:34:12 PM [vite] (client) page reload socket-test.html
+5:17:41 AM [vite] .env changed, restarting server...
+5:17:41 AM [vite] server restarted.
+5:24:15 AM [vite] vite.config.ts changed, restarting server...
+5:24:15 AM [vite] server restarted.
+5:37:25 AM [vite] (client) page reload socket-test.html
+5:43:30 AM [vite] (client) page reload socket-test.html
+5:52:16 AM [vite] .env.local changed, restarting server...
+5:52:16 AM [vite] server restarted.
+5:54:05 AM [vite] (client) page reload test-socket-connection.html
+6:17:42 AM [vite] (client) page reload test-production-multiplayer.html
+6:17:48 AM [vite] (client) page reload test-production-multiplayer.html
+6:19:34 AM [vite] (client) page reload final-verification-test.html
+6:19:40 AM [vite] (client) page reload final-verification-test.html
+6:24:50 AM [vite] (client) page reload debug-railway-events.html
+6:26:04 AM [vite] (client) page reload debug-railway-events.html
+6:27:10 AM [vite] .env.local changed, restarting server...
+6:27:10 AM [vite] server restarted.
+6:27:59 AM [vite] (client) page reload test-vercel-backend.html
+6:28:05 AM [vite] (client) page reload test-vercel-backend.html
+6:33:54 AM [vite] (client) page reload test-production-connection.html
+6:37:57 AM [vite] (client) hmr update /src/index.css
+6:40:01 AM [vite] .env.local changed, restarting server...
+6:40:02 AM [vite] server restarted.
+11:03:23 PM [vite] (client) hmr update /src/index.css
+11:03:28 PM [vite] .env.local changed, restarting server...
+11:03:29 PM [vite] server restarted.
+11:05:57 PM [vite] (client) page reload test-production-live.html
+11:38:39 PM [vite] (client) page reload debug-frontend-auth-issue.html
+6:34:48 AM [vite] (client) page reload test-game-navigation-fix.html

@@ -264,8 +264,12 @@ socketManager.on('connection_status', (data: { connected: boolean; reason?: stri
 });
 
 socketManager.on('authenticated', (data: { success: boolean; playerInfo?: PlayerInfo }) => {
+  console.log('🔐 [STORE] Authentication event received in store:', data);
   if (data.success && data.playerInfo) {
+    console.log('🔐 [STORE] Setting authenticated state to true in store');
     useMultiplayerStore.getState().setAuthenticated(true, data.playerInfo);
+  } else {
+    console.log('🔐 [STORE] Authentication failed or missing playerInfo:', { success: data.success, hasPlayerInfo: !!data.playerInfo });
   }
 });
 

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { io, Socket } from 'socket.io-client';
+import { socketManager } from '../../services/socketManager';
 
 // Simple time control interface without complex imports
 interface SimpleTimeControl {
@@ -31,86 +32,134 @@ const SimpleMultiplayerLobby: React.FC = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'disconnected'>('disconnected');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [connectionDiagnostics, setConnectionDiagnostics] = useState<any>(null);
+  const [showDiagnostics, setShowDiagnostics] = useState(false);
 
-  // WebSocket connection setup
+  // WebSocket connection setup using enhanced socketManager
   useEffect(() => {
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3002';
-    console.log('🔗 Connecting to backend:', backendUrl);
-    const newSocket = io(backendUrl);
-    setSocket(newSocket);
     setConnectionStatus('connecting');
 
-    // Connection events
-    newSocket.on('connect', () => {
-      console.log('✅ Connected to multiplayer server');
-      setConnectionStatus('connected');
-      
-      // Generate consistent user ID for this browser session
-      let userId = sessionStorage.getItem('chessUserId');
-      let username = sessionStorage.getItem('chessUsername');
-      if (!userId) {
-        userId = 'demo-user-' + Math.random().toString(36).substr(2, 6);
-        username = 'Player' + Math.floor(Math.random() * 1000);
-        sessionStorage.setItem('chessUserId', userId);
-        sessionStorage.setItem('chessUsername', username);
+    // Store callback references for proper cleanup
+    const connectionStatusCallback = (data: { connected: boolean; reason?: string }) => {
+      setConnectionStatus(data.connected ? 'connected' : 'disconnected');
+      console.log('🔗 Connection status changed:', data);
+
+      // Update diagnostics
+      setConnectionDiagnostics(socketManager.getConnectionDiagnostics());
+    };
+
+    const authenticatedCallback = (data: { success: boolean; playerInfo?: any }) => {
+      console.log('🔐 [LOBBY] Authentication callback triggered with data:', data);
+      if (data.success) {
+        console.log('🔐 [LOBBY] Authentication successful, setting isAuthenticated to true');
+        setIsAuthenticated(true);
+      } else {
+        console.log('🔐 [LOBBY] Authentication failed, data.success is false');
       }
-      
-      // Authenticate with demo user data
-      newSocket.emit('authenticate', {
+    };
+
+    const gameStartedCallback = (data: any) => {
+      console.log('🎮 Game started:', data);
+      setIsSearching(false);
+
+      // CRITICAL: Preserve socket connection during navigation
+      console.log('🔒 Preserving socket connection for game navigation');
+      const preservationSuccess = socketManager.preserveConnection();
+      console.log('🔍 Socket preservation result:', preservationSuccess);
+      console.log('🔍 Connection diagnostics before navigation:', socketManager.getConnectionDiagnostics());
+
+      // Add small delay to ensure clean transition
+      setTimeout(() => {
+        console.log('🗺 Navigating to game:', data.gameId);
+        navigate(`/game/${data.gameId}`);
+      }, 100);
+    };
+
+    const matchmakingJoinedCallback = (data: any) => {
+      console.log('🔍 Added to matchmaking queue:', data);
+    };
+
+    // Listen to connection events
+    socketManager.on('connection_status', connectionStatusCallback);
+    socketManager.on('authenticated', authenticatedCallback);
+    socketManager.on('game_started', gameStartedCallback);
+    socketManager.on('matchmaking_joined', matchmakingJoinedCallback);
+
+    // Auto-authenticate if connected
+    if (socketManager.isConnected()) {
+      setConnectionStatus('connected');
+      authenticateUser();
+    }
+
+    // Update diagnostics periodically
+    const diagnosticsInterval = setInterval(() => {
+      setConnectionDiagnostics(socketManager.getConnectionDiagnostics());
+    }, 5000);
+
+    return () => {
+      clearInterval(diagnosticsInterval);
+
+      // CRITICAL FIX: Remove only specific callbacks, not ALL listeners
+      // This prevents breaking the socket connection for the game component
+      socketManager.removeCallback('connection_status', connectionStatusCallback);
+      socketManager.removeCallback('authenticated', authenticatedCallback);
+      socketManager.removeCallback('game_started', gameStartedCallback);
+      socketManager.removeCallback('matchmaking_joined', matchmakingJoinedCallback);
+
+      console.log('🧹 Lobby cleanup: Removed specific callbacks, preserved socket connection');
+    };
+  }, [navigate]);
+
+  const authenticateUser = () => {
+    // Generate consistent user ID for this browser session
+    let userId = sessionStorage.getItem('chessUserId');
+    let username = sessionStorage.getItem('chessUsername');
+    if (!userId) {
+      userId = 'demo-user-' + Math.random().toString(36).substr(2, 6);
+      username = 'Player' + Math.floor(Math.random() * 1000);
+      sessionStorage.setItem('chessUserId', userId);
+      sessionStorage.setItem('chessUsername', username);
+    }
+
+    try {
+      socketManager.authenticate({
         userId,
         username,
         rating: 1200 + Math.floor(Math.random() * 400)
       });
-    });
-
-    newSocket.on('disconnect', () => {
-      console.log('❌ Disconnected from server');
-      setConnectionStatus('disconnected');
-      setIsAuthenticated(false);
-    });
-
-    newSocket.on('authenticated', (data) => {
-      console.log('🔐 Authenticated:', data);
-      setIsAuthenticated(true);
-    });
-
-    newSocket.on('matchmaking_queued', (data) => {
-      console.log('🔍 Added to matchmaking queue:', data);
-    });
-
-    newSocket.on('game_started', (data) => {
-      console.log('🎮 Game started:', data);
-      setIsSearching(false);
-      navigate(`/game/${data.gameId}`);
-    });
-
-    newSocket.on('matchmaking_error', (data) => {
-      console.error('❌ Matchmaking error:', data);
-      setIsSearching(false);
-    });
-
-    return () => {
-      newSocket.disconnect();
-    };
-  }, []); // Fixed: removed navigate from dependency array to prevent disconnection on navigation
+    } catch (error) {
+      console.log('⚠️ Authentication skipped, not connected yet');
+    }
+  };
 
   const handleTimeControlSelect = (tc: SimpleTimeControl) => {
     setSelectedTimeControl(tc);
   };
 
   const handlePlayNow = () => {
-    if (!selectedTimeControl || !socket || !isAuthenticated) return;
-    
+    if (!selectedTimeControl || !isAuthenticated || !socketManager.isConnected()) return;
+
     setIsSearching(true);
-    
-    // Send real matchmaking request to backend
-    socket.emit('join_matchmaking', {
-      timeControl: {
-        initial: parseInt(selectedTimeControl.time.split('+')[0]) * 60, // Convert minutes to seconds
-        increment: parseInt(selectedTimeControl.time.split('+')[1]) || 0,
-        type: selectedTimeControl.type
-      }
-    });
+
+    try {
+      // Send real matchmaking request using enhanced socketManager
+      socketManager.joinMatchmaking({
+        timeControl: {
+          initial: parseInt(selectedTimeControl.time.split('+')[0]) * 60, // Convert minutes to seconds
+          increment: parseInt(selectedTimeControl.time.split('+')[1]) || 0,
+          type: selectedTimeControl.type
+        }
+      });
+    } catch (error) {
+      console.error('Failed to join matchmaking:', error);
+      setIsSearching(false);
+    }
+  };
+
+  const handleForceReconnect = () => {
+    console.log('🔄 User requested force reconnection');
+    socketManager.forceReconnect();
+    setConnectionStatus('connecting');
   };
 
   const getTypeColor = (type: string) => {
@@ -162,21 +211,21 @@ const SimpleMultiplayerLobby: React.FC = () => {
         {/* Connection Status */}
         <div className="mb-8 text-center">
           <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg border ${
-            connectionStatus === 'connected' 
+            connectionStatus === 'connected'
               ? 'bg-green-500/20 text-green-400 border-green-500/30'
               : connectionStatus === 'connecting'
               ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
               : 'bg-red-500/20 text-red-400 border-red-500/30'
           }`}>
             <div className={`w-2 h-2 rounded-full ${
-              connectionStatus === 'connected' 
+              connectionStatus === 'connected'
                 ? 'bg-green-500'
                 : connectionStatus === 'connecting'
                 ? 'bg-yellow-500 animate-pulse'
                 : 'bg-red-500'
             }`}></div>
             <span className="text-sm font-medium">
-              {connectionStatus === 'connected' && isAuthenticated 
+              {connectionStatus === 'connected' && isAuthenticated
                 ? 'Connected & Ready'
                 : connectionStatus === 'connected' && !isAuthenticated
                 ? 'Connected (Authenticating...)'
@@ -186,6 +235,49 @@ const SimpleMultiplayerLobby: React.FC = () => {
               }
             </span>
           </div>
+
+          {/* Connection Actions */}
+          <div className="mt-4 flex justify-center gap-2">
+            {connectionStatus === 'disconnected' && (
+              <Button
+                onClick={handleForceReconnect}
+                variant="outline"
+                size="sm"
+                className="text-blue-400 border-blue-500/30 hover:bg-blue-500/20"
+              >
+                🔄 Reconnect
+              </Button>
+            )}
+            <Button
+              onClick={() => setShowDiagnostics(!showDiagnostics)}
+              variant="outline"
+              size="sm"
+              className="text-gray-400 border-gray-500/30 hover:bg-gray-500/20"
+            >
+              {showDiagnostics ? '🔍 Hide' : '🔍 Show'} Diagnostics
+            </Button>
+          </div>
+
+          {/* Connection Diagnostics */}
+          {showDiagnostics && connectionDiagnostics && (
+            <div className="mt-4 max-w-2xl mx-auto">
+              <Card className="bg-gray-800 border-gray-700">
+                <CardContent className="p-4">
+                  <h4 className="text-sm font-semibold text-blue-400 mb-2">Connection Diagnostics</h4>
+                  <div className="text-xs text-gray-300 space-y-1">
+                    <div>Status: <span className={connectionDiagnostics.connected ? 'text-green-400' : 'text-red-400'}>{connectionDiagnostics.connected ? 'Connected' : 'Disconnected'}</span></div>
+                    <div>Transport: <span className="text-blue-400">{connectionDiagnostics.transport}</span></div>
+                    <div>Socket ID: <span className="text-yellow-400">{connectionDiagnostics.socketId}</span></div>
+                    <div>Health: <span className={connectionDiagnostics.isHealthy ? 'text-green-400' : 'text-red-400'}>{connectionDiagnostics.isHealthy ? 'Healthy' : 'Unhealthy'}</span></div>
+                    {connectionDiagnostics.timeSinceLastHeartbeat && (
+                      <div>Last Heartbeat: <span className="text-purple-400">{Math.round(connectionDiagnostics.timeSinceLastHeartbeat / 1000)}s ago</span></div>
+                    )}
+                    <div>Reconnect Attempts: <span className="text-orange-400">{connectionDiagnostics.reconnectAttempts}</span></div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
         </div>
 
         {/* Time Control Selection */}

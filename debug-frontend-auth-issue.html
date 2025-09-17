@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend Authentication Issue Debugger</title>
+    <style>
+        body {
+            font-family: monospace;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #00ff00;
+        }
+        .container {
+            background: #000;
+            border: 1px solid #00ff00;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .log {
+            background: #111;
+            border: 1px solid #333;
+            padding: 15px;
+            height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            font-size: 12px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 3px;
+        }
+        .connected { background: #004400; border: 1px solid #00ff00; }
+        .authenticating { background: #444400; border: 1px solid #ffff00; color: #ffff00; }
+        .authenticated { background: #004400; border: 1px solid #00ff00; }
+        .error { background: #440000; border: 1px solid #ff0000; color: #ff0000; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Frontend Authentication Issue Debugger</h1>
+    <div class="container">
+        <h3>Replicating Exact Frontend Authentication Flow</h3>
+        <div id="connectionStatus" class="status authenticating">Connecting...</div>
+        <div id="authStatus" class="status authenticating">Not Started</div>
+    </div>
+
+    <div class="container">
+        <h3>📋 Event Log</h3>
+        <div id="log" class="log">Starting frontend authentication debugging...\n</div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script>
+        const logEl = document.getElementById('log');
+        const connectionStatusEl = document.getElementById('connectionStatus');
+        const authStatusEl = document.getElementById('authStatus');
+
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            logEl.textContent += `[${timestamp}] ${message}\n`;
+            logEl.scrollTop = logEl.scrollHeight;
+            console.log(`[Frontend Debug] ${message}`);
+        }
+
+        function updateConnectionStatus(message, className) {
+            connectionStatusEl.textContent = message;
+            connectionStatusEl.className = `status ${className}`;
+        }
+
+        function updateAuthStatus(message, className) {
+            authStatusEl.textContent = message;
+            authStatusEl.className = `status ${className}`;
+        }
+
+        log('🚀 Starting frontend authentication flow replication...');
+
+        // Replicate the EXACT frontend socket configuration
+        const backendUrl = 'https://web-production-4fb4.up.railway.app';
+
+        log(`🔗 Connecting to: ${backendUrl}`);
+
+        const socket = io(backendUrl, {
+            // Railway-optimized transport configuration
+            transports: ['polling', 'websocket'], // Allow upgrade to websockets for better performance
+            forceNew: false,
+
+            // Timeouts optimized for Railway deployment
+            timeout: 20000, // Railway-optimized timeout
+
+            // Enhanced reconnection strategy for Railway
+            reconnection: true,
+            reconnectionDelay: 2000, // Start with 2 second delay
+            reconnectionDelayMax: 30000, // Max 30 second delay for Railway cold starts
+            reconnectionAttempts: 15, // More attempts for Railway stability
+            randomizationFactor: 0.3, // Less jitter for better predictability
+
+            // Railway-friendly options
+            upgrade: true, // Allow upgrade to websockets for better Railway performance
+            rememberUpgrade: true, // Remember successful upgrades
+            autoConnect: true,
+            withCredentials: false,
+
+            // Enhanced headers for Railway CORS
+            extraHeaders: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE,OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization, Content-Length, X-Requested-With',
+                'Cache-Control': 'no-cache'
+            },
+
+            // Query parameters for Railway debugging
+            query: {
+                client: 'chess-academy',
+                version: '1.0.0',
+                platform: 'railway',
+                timestamp: Date.now()
+            }
+        });
+
+        let isAuthenticated = false;
+        let connectionStatus = 'connecting';
+
+        // Enhanced connection events for Railway stability
+        socket.on('connect', () => {
+            log('✅ Connected to multiplayer server, Socket ID: ' + socket.id);
+            log('🚀 Transport: ' + socket.io.engine.transport.name);
+            connectionStatus = 'connected';
+            updateConnectionStatus(`Connected: ${socket.id}`, 'connected');
+
+            // Send test ping immediately on connection
+            setTimeout(() => {
+                if (socket.connected) {
+                    log('🏓 Testing initial ping...');
+                    socket.emit('ping', { timestamp: Date.now() });
+                }
+            }, 1000);
+
+            // Authenticate immediately like frontend does
+            authenticateUser();
+        });
+
+        socket.on('disconnect', (reason) => {
+            log('❌ Disconnected from server: ' + reason);
+            connectionStatus = 'disconnected';
+            updateConnectionStatus(`Disconnected: ${reason}`, 'error');
+        });
+
+        socket.on('connect_error', (error) => {
+            log('❌ Connection error: ' + (error.message || error));
+            updateConnectionStatus(`Error: ${error.message || error}`, 'error');
+        });
+
+        // Handle Railway heartbeat
+        socket.on('heartbeat', (data) => {
+            log('💓 Heartbeat received: ' + data.timestamp);
+            // Respond to keep connection alive
+            socket.emit('heartbeat_ack', { timestamp: Date.now() });
+        });
+
+        // Handle pong responses
+        socket.on('pong', (data) => {
+            log('🏓 Pong received, latency: ' + (Date.now() - data.timestamp) + 'ms');
+        });
+
+        // CRITICAL: Authentication event handler
+        socket.on('authenticated', (data) => {
+            log('🔐 AUTHENTICATED EVENT RECEIVED: ' + JSON.stringify(data));
+            if (data.success) {
+                isAuthenticated = true;
+                updateAuthStatus('Authenticated Successfully', 'authenticated');
+                log('✅ Authentication successful!');
+            } else {
+                updateAuthStatus('Authentication Failed', 'error');
+                log('❌ Authentication failed: ' + JSON.stringify(data));
+            }
+        });
+
+        function authenticateUser() {
+            log('🔐 Starting authentication process...');
+            updateAuthStatus('Authenticating...', 'authenticating');
+
+            // Generate consistent user ID for this browser session (replicate frontend logic)
+            let userId = sessionStorage.getItem('chessUserId');
+            let username = sessionStorage.getItem('chessUsername');
+            if (!userId) {
+                userId = 'demo-user-' + Math.random().toString(36).substr(2, 6);
+                username = 'Player' + Math.floor(Math.random() * 1000);
+                sessionStorage.setItem('chessUserId', userId);
+                sessionStorage.setItem('chessUsername', username);
+            }
+
+            const userData = {
+                userId,
+                username,
+                rating: 1200 + Math.floor(Math.random() * 400)
+            };
+
+            log('📤 Sending authenticate event: ' + JSON.stringify(userData));
+
+            try {
+                socket.emit('authenticate', userData);
+                log('✅ Authenticate event sent successfully');
+
+                // Set timeout to check if we get a response
+                setTimeout(() => {
+                    if (!isAuthenticated) {
+                        log('⏰ 5 seconds elapsed, still authenticating...');
+                        log('🔍 Status check:');
+                        log('   - Socket connected: ' + socket.connected);
+                        log('   - Is authenticated: ' + isAuthenticated);
+                        log('   - Connection status: ' + connectionStatus);
+                    }
+                }, 5000);
+
+                setTimeout(() => {
+                    if (!isAuthenticated) {
+                        log('❌ 10 seconds elapsed - AUTHENTICATION TIMEOUT');
+                        log('🔍 This means the frontend is NOT receiving the authenticated event');
+                        updateAuthStatus('Authentication Timeout', 'error');
+                    }
+                }, 10000);
+
+            } catch (error) {
+                log('❌ Authentication error: ' + error.message);
+                updateAuthStatus('Authentication Error', 'error');
+            }
+        }
+
+        // Status update every 2 seconds
+        setInterval(() => {
+            const statusUpdate = `Status: ${connectionStatus} | Auth: ${isAuthenticated ? 'YES' : 'NO'} | Socket: ${socket.connected ? 'Connected' : 'Disconnected'}`;
+            log('📊 ' + statusUpdate);
+        }, 2000);
+
+        // Listen for ALL events to debug what's happening
+        const allPossibleEvents = [
+            'authenticated', 'authentication_error', 'auth_success', 'auth_failed',
+            'matchmaking_joined', 'game_started', 'game_found',
+            'pong', 'heartbeat', 'server_message', 'error', 'message'
+        ];
+
+        allPossibleEvents.forEach(event => {
+            socket.on(event, (data) => {
+                if (event !== 'heartbeat' && event !== 'pong') { // Don't spam with heartbeats
+                    log(`📨 EVENT RECEIVED '${event}': ${JSON.stringify(data)}`);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

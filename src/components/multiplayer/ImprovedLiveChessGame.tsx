@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Chess } from 'chess.js';
 import { ChessBoard } from '../chess/ChessBoard';
-import { io, Socket } from 'socket.io-client';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { getDisplayName } from '../../utils/nameGenerator';
 import { Maximize2, Minimize2, Send, Smile, X, Minus, Move, RotateCcw } from 'lucide-react';
+import { socketManager } from '../../services/socketManager';
 
 interface ImprovedLiveChessGameProps {
   gameId: string;
@@ -39,7 +39,6 @@ interface ChatMessage {
 }
 
 const ImprovedLiveChessGame: React.FC<ImprovedLiveChessGameProps> = ({ gameId }) => {
-  const [socket, setSocket] = useState<Socket | null>(null);
   const [chess] = useState(new Chess());
   const [gamePosition, setGamePosition] = useState(chess.fen());
   
@@ -89,44 +88,31 @@ const ImprovedLiveChessGame: React.FC<ImprovedLiveChessGameProps> = ({ gameId })
   const [displayWhiteTime, setDisplayWhiteTime] = useState(0);
   const [displayBlackTime, setDisplayBlackTime] = useState(0);
 
-  // Socket connection and event handling
+  // Socket connection and event handling using socketManager
   useEffect(() => {
-    const newSocket = io('http://localhost:3002', {
-      transports: ['websocket'],
-      autoConnect: true
-    });
+    console.log('🎮 Setting up game event listeners for gameId:', gameId);
 
-    newSocket.on('connect', () => {
-      console.log('🎮 Connected to server');
-      setConnectionStatus('connected');
-      
-      // Use consistent user credentials from session storage
-      let userId = sessionStorage.getItem('chessUserId');
-      let username = sessionStorage.getItem('chessUsername');
-      if (!userId) {
-        userId = 'demo-user-' + Math.random().toString(36).substr(2, 6);
-        username = 'Player' + Math.floor(Math.random() * 1000);
-        sessionStorage.setItem('chessUserId', userId);
-        sessionStorage.setItem('chessUsername', username);
+    // Set initial connection status
+    setConnectionStatus(socketManager.isConnected() ? 'connected' : 'connecting');
+
+    // Store callback references for proper cleanup
+    const connectionStatusCallback = (data: { connected: boolean; reason?: string }) => {
+      setConnectionStatus(data.connected ? 'connected' : 'disconnected');
+      console.log('🔗 Game connection status changed:', data);
+
+      // If disconnected during game, try to reconnect
+      if (!data.connected && gameStatus === 'active') {
+        console.log('⚠️ Connection lost during active game, attempting reconnection...');
+        setTimeout(() => {
+          if (!socketManager.isConnected()) {
+            socketManager.forceReconnect();
+          }
+        }, 2000);
       }
-      
-      // Authenticate and join game with same credentials from lobby
-      newSocket.emit('authenticate', {
-        userId,
-        username,
-        rating: 1200 + Math.floor(Math.random() * 400)
-      });
-      
-      newSocket.emit('join_game', { gameId });
-    });
+    };
 
-    newSocket.on('disconnect', () => {
-      console.log('🎮 Disconnected from server');
-      setConnectionStatus('disconnected');
-    });
-
-    newSocket.on('game_started', (data) => {
-      console.log('🎮 Game started:', data);
+    const gameStartedCallback = (data: any) => {
+      console.log('🎮 Game started in game component:', data);
       setGameData(data);
       setGameStatus('active');
       setPlayerColor(data.playerColor);
@@ -134,21 +120,47 @@ const ImprovedLiveChessGame: React.FC<ImprovedLiveChessGameProps> = ({ gameId })
       chess.load(data.position);
       setDisplayWhiteTime(data.whiteTime);
       setDisplayBlackTime(data.blackTime);
-    });
+    };
 
-    newSocket.on('move_made', (data) => {
+    const gameJoinedCallback = (data: any) => {
+      console.log('🎮 Game joined successfully:', data);
+      if (data.gameState) {
+        setGameData(data.gameState);
+        setGameStatus('active');
+        setPlayerColor(data.playerColor);
+        setGamePosition(data.gameState.position);
+        chess.load(data.gameState.position);
+        setDisplayWhiteTime(data.gameState.whiteTime);
+        setDisplayBlackTime(data.gameState.blackTime);
+      }
+    };
+
+    const gameRejoinedCallback = (data: any) => {
+      console.log('🔄 Game rejoined after navigation:', data);
+      if (data.gameState) {
+        setGameData(data.gameState);
+        setGameStatus('active');
+        setPlayerColor(data.playerColor);
+        setGamePosition(data.gameState.position);
+        chess.load(data.gameState.position);
+        setDisplayWhiteTime(data.gameState.whiteTime);
+        setDisplayBlackTime(data.gameState.blackTime);
+      }
+    };
+
+    const moveMadeCallback = (data: any) => {
       console.log('🎯 FRONTEND: move_made event received:', data);
       console.log('🎯 FRONTEND: Event timestamp:', new Date().toISOString());
-      
+
       if (data.position) {
         console.log('🔄 Updating chess position to:', data.position);
         chess.load(data.position);
-        
+
         setGamePosition(prevPos => {
           console.log('🔄 setGamePosition: old =', prevPos, 'new =', data.position);
           return data.position;
         });
-        
+
         setGameData(prev => {
           if (!prev) {
             return {
@@ -171,37 +183,98 @@ const ImprovedLiveChessGame: React.FC<ImprovedLiveChessGameProps> = ({ gameId })
             moveNumber: data.moveNumber
           };
         });
-        
+
         if (data.lastMove && data.lastMove.from && data.lastMove.to) {
           setLastMove({ from: data.lastMove.from, to: data.lastMove.to });
         }
-        
+
         if (data.gameResult) {
           setGameStatus('ended');
           setGameResult(data.gameResult);
         }
-        
+
         setSelectedSquare(null);
         setOptionSquares({});
       }
-    });
+    };
 
-    newSocket.on('game_ended', (data) => {
+    const gameEndedCallback = (data: any) => {
       console.log('🏁 Game ended:', data);
       setGameStatus('ended');
       setGameResult(data.result);
-    });
+    };
 
-    newSocket.on('chat_message', (data) => {
+    const chatMessageCallback = (data: any) => {
       setChatMessages(prev => [...prev, data.message]);
-    });
+    };
 
-    setSocket(newSocket);
+    // Listen to connection events with proper callback references
+    socketManager.on('connection_status', connectionStatusCallback);
+    socketManager.on('game_started', gameStartedCallback);
+    socketManager.on('game_joined', gameJoinedCallback);
+    socketManager.on('game_rejoined', gameRejoinedCallback);
+    socketManager.on('move_made', moveMadeCallback);
+    socketManager.on('game_ended', gameEndedCallback);
+    socketManager.on('chat_message', chatMessageCallback);
+
+    // Enhanced game joining logic with better error handling
+    const joinGameWithRetry = () => {
+      if (!socketManager.isConnected()) {
+        console.log('⚠️ Socket not connected, attempting reconnection before joining game');
+        socketManager.forceReconnect();
+        return;
+      }
+
+      console.log('🎮 Socket connected, joining game:', gameId);
+      try {
+        // Emit both events to ensure backend handles properly
+        socketManager.emit('join_game', { gameId });
+        // Also emit reconnect_to_game in case this is a navigation from lobby
+        socketManager.emit('reconnect_to_game', { gameId });
+        console.log('✅ Join game events emitted successfully');
+      } catch (error) {
+        console.error('❌ Failed to join game:', error);
+        setConnectionStatus('disconnected');
+      }
+    };
+
+    // Add delay to ensure clean navigation
+    const joinTimer = setTimeout(() => {
+      joinGameWithRetry();
+    }, 100);
+
+    // Retry logic for connection establishment
+    const connectionCheckInterval = setInterval(() => {
+      if (socketManager.isConnected() && connectionStatus === 'connecting') {
+        console.log('🔄 Connection established during game loading, joining game');
+        joinGameWithRetry();
+        clearInterval(connectionCheckInterval);
+      }
+    }, 1000);
+
+    // Cleanup intervals
+    const cleanupTimeout = setTimeout(() => {
+      clearInterval(connectionCheckInterval);
+    }, 30000);
 
     return () => {
-      newSocket.disconnect();
+      // Clean up timers
+      clearTimeout(joinTimer);
+      clearInterval(connectionCheckInterval);
+      clearTimeout(cleanupTimeout);
+
+      // CRITICAL FIX: Clean up only specific callbacks for this component
+      socketManager.removeCallback('connection_status', connectionStatusCallback);
+      socketManager.removeCallback('game_started', gameStartedCallback);
+      socketManager.removeCallback('game_joined', gameJoinedCallback);
+      socketManager.removeCallback('game_rejoined', gameRejoinedCallback);
+      socketManager.removeCallback('move_made', moveMadeCallback);
+      socketManager.removeCallback('game_ended', gameEndedCallback);
+      socketManager.removeCallback('chat_message', chatMessageCallback);
+
+      console.log('🧹 Game cleanup: Removed specific callbacks, preserved socket connection');
     };
-  }, [gameId]);
+  }, [gameId, gameStatus]);
 
   // Timer countdown
   useEffect(() => {
@@ -237,7 +310,7 @@ const ImprovedLiveChessGame: React.FC<ImprovedLiveChessGameProps> = ({ gameId })
       return false;
     }
 
-    if (!gameData || !socket) {
+    if (!gameData || !socketManager.isConnected()) {
       console.log(`❌ No game data or socket connection`);
       return false;
     }
@@ -262,10 +335,15 @@ const ImprovedLiveChessGame: React.FC<ImprovedLiveChessGameProps> = ({ gameId })
     };
     
     console.log('🎯 FRONTEND: Sending make_move event:', moveData);
-    
-    socket.emit('make_move', moveData);
+
+    try {
+      socketManager.emit('make_move', moveData);
+    } catch (error) {
+      console.error('Failed to send move:', error);
+      return false;
+    }
     return true;
-  }, [socket, gameId, playerColor, gameData, gameStatus]);
+  }, [gameId, playerColor, gameData, gameStatus]);
 
   // Handle move from ChessBoard wrapper
   const handleMove = useCallback((move: { from: string; to: string; promotion?: string }) => {
@@ -275,7 +353,11 @@ const ImprovedLiveChessGame: React.FC<ImprovedLiveChessGameProps> = ({ gameId })
 
   const resignGame = () => {
     if (window.confirm('Are you sure you want to resign?')) {
-      socket?.emit('resign', { gameId });
+      try {
+        socketManager.emit('resign', { gameId });
+      } catch (error) {
+        console.error('Failed to resign:', error);
+      }
     }
   };
 
@@ -292,14 +374,18 @@ const ImprovedLiveChessGame: React.FC<ImprovedLiveChessGameProps> = ({ gameId })
   };
 
   const sendChatMessage = () => {
-    if (newMessage.trim() && socket) {
+    if (newMessage.trim() && socketManager.isConnected()) {
       const currentUsername = sessionStorage.getItem('chessUsername') || 'Player';
       const message: ChatMessage = {
         username: currentUsername,
         message: newMessage.trim(),
         timestamp: new Date().toISOString()
       };
-      socket.emit('chat_message', { gameId, message });
+      try {
+        socketManager.emit('chat_message', { gameId, message });
+      } catch (error) {
+        console.error('Failed to send chat message:', error);
+      }
       // Don't add to local state - server will echo back the message
       setNewMessage('');
       setShowEmojiPicker(false);
@@ -312,14 +398,18 @@ const ImprovedLiveChessGame: React.FC<ImprovedLiveChessGameProps> = ({ gameId })
   };
 
   const sendQuickMessage = (message: string) => {
-    if (socket) {
+    if (socketManager.isConnected()) {
       const currentUsername = sessionStorage.getItem('chessUsername') || 'Player';
       const chatMessage: ChatMessage = {
         username: currentUsername,
         message: message,
         timestamp: new Date().toISOString()
       };
-      socket.emit('chat_message', { gameId, message: chatMessage });
+      try {
+        socketManager.emit('chat_message', { gameId, message: chatMessage });
+      } catch (error) {
+        console.error('Failed to send quick message:', error);
+      }
       setShowEmojiPicker(false);
     }
   };

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vercel Backend Authentication & Matchmaking Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #7c3aed 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .test-result {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: bold;
+            border: 2px solid;
+        }
+        .success { background: rgba(34, 197, 94, 0.2); border-color: #22c55e; color: #22c55e; }
+        .error { background: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #ef4444; }
+        .warning { background: rgba(245, 158, 11, 0.2); border-color: #f59e0b; color: #f59e0b; }
+        .info { background: rgba(59, 130, 246, 0.2); border-color: #3b82f6; color: #3b82f6; }
+        .button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            transition: all 0.2s;
+        }
+        .button:hover { background: #2563eb; transform: translateY(-1px); }
+        .button:disabled { background: #6b7280; cursor: not-allowed; transform: none; }
+        .log {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 8px;
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .connected { background: #22c55e; }
+        .disconnected { background: #ef4444; }
+        .connecting { background: #f59e0b; animation: pulse 1s infinite; }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <h1>✅ FIXED: Vercel Backend Test</h1>
+
+    <div class="container">
+        <h2>🔧 Backend URL Fixed</h2>
+        <p><strong>❌ OLD (Railway):</strong> https://web-production-4fb4.up.railway.app</p>
+        <p><strong>✅ NEW (Vercel):</strong> https://minimal-socket-server.vercel.app</p>
+        <div id="connectionStatus" class="test-result info">
+            <span class="status-indicator connecting"></span>
+            Testing connection to correct backend...
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>🧪 Authentication & Matchmaking Tests</h2>
+        <div>
+            <button class="button" onclick="testConnection()">1. Test Connection</button>
+            <button class="button" onclick="testAuthentication()">2. Test Authentication</button>
+            <button class="button" onclick="testMatchmaking()">3. Test Matchmaking</button>
+            <button class="button" onclick="testAll()">🚀 Test All</button>
+            <button class="button" onclick="clearLog()">Clear Log</button>
+        </div>
+        <div id="testResults"></div>
+    </div>
+
+    <div class="container">
+        <h2>📊 Real-Time Test Log</h2>
+        <div id="log" class="log">Starting authentication and matchmaking tests...\n</div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script>
+        const CORRECT_BACKEND = 'https://minimal-socket-server.vercel.app';
+        let socket = null;
+        let authenticationSuccess = false;
+        let matchmakingSuccess = false;
+
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEl = document.getElementById('log');
+            logEl.textContent += `[${timestamp}] ${message}\n`;
+            logEl.scrollTop = logEl.scrollHeight;
+            console.log(`[Test] ${message}`);
+        }
+
+        function updateConnectionStatus(message, className, indicatorClass) {
+            const statusEl = document.getElementById('connectionStatus');
+            statusEl.innerHTML = `<span class="status-indicator ${indicatorClass}"></span>${message}`;
+            statusEl.className = `test-result ${className}`;
+        }
+
+        function addTestResult(testName, passed, details = '') {
+            const container = document.getElementById('testResults');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-result ${passed ? 'success' : 'error'}`;
+            resultDiv.innerHTML = `
+                <strong>${testName}:</strong> ${passed ? '✅ PASSED' : '❌ FAILED'}
+                ${details ? `<br><small>${details}</small>` : ''}
+            `;
+            container.appendChild(resultDiv);
+        }
+
+        function clearLog() {
+            document.getElementById('log').textContent = '';
+            document.getElementById('testResults').innerHTML = '';
+        }
+
+        function testConnection() {
+            log('=== CONNECTION TEST START ===');
+            log(`🎯 Connecting to CORRECT backend: ${CORRECT_BACKEND}`);
+
+            updateConnectionStatus('Connecting to Vercel backend...', 'info', 'connecting');
+
+            if (socket) {
+                socket.removeAllListeners();
+                socket.disconnect();
+            }
+
+            socket = io(CORRECT_BACKEND, {
+                transports: ['polling', 'websocket'],
+                timeout: 20000,
+                forceNew: true,
+                withCredentials: false
+            });
+
+            socket.on('connect', () => {
+                log('✅ CONNECTED to Vercel backend successfully!');
+                log(`   Socket ID: ${socket.id}`);
+                log(`   Transport: ${socket.io.engine.transport.name}`);
+
+                updateConnectionStatus(`Connected to Vercel backend! Socket: ${socket.id}`, 'success', 'connected');
+                addTestResult('Connection', true, `Socket ID: ${socket.id}, Transport: ${socket.io.engine.transport.name}`);
+            });
+
+            socket.on('disconnect', (reason) => {
+                log(`❌ DISCONNECTED: ${reason}`);
+                updateConnectionStatus(`Disconnected: ${reason}`, 'error', 'disconnected');
+                addTestResult('Connection', false, reason);
+            });
+
+            socket.on('connect_error', (error) => {
+                log(`❌ CONNECTION ERROR: ${error.message}`);
+                updateConnectionStatus(`Connection Error: ${error.message}`, 'error', 'disconnected');
+                addTestResult('Connection', false, error.message);
+            });
+
+            // Listen for game events
+            socket.on('authenticated', (data) => {
+                log(`🔐 AUTHENTICATION SUCCESS: ${JSON.stringify(data)}`);
+                authenticationSuccess = true;
+                addTestResult('Authentication', true, 'User authenticated successfully');
+            });
+
+            socket.on('matchmaking_joined', (data) => {
+                log(`🎯 MATCHMAKING SUCCESS: ${JSON.stringify(data)}`);
+                matchmakingSuccess = true;
+                addTestResult('Matchmaking', true, 'Successfully joined matchmaking queue');
+
+                // Leave matchmaking after successful test
+                setTimeout(() => {
+                    if (socket) {
+                        socket.emit('leave_matchmaking');
+                        log('👋 Left matchmaking queue after successful test');
+                    }
+                }, 2000);
+            });
+
+            socket.on('game_found', (data) => {
+                log(`🎮 GAME FOUND: ${JSON.stringify(data)}`);
+            });
+
+            socket.on('game_started', (data) => {
+                log(`▶️ GAME STARTED: ${JSON.stringify(data)}`);
+            });
+
+            // Error handlers
+            socket.on('authentication_error', (data) => {
+                log(`❌ AUTHENTICATION ERROR: ${JSON.stringify(data)}`);
+                addTestResult('Authentication', false, 'Authentication failed');
+            });
+
+            socket.on('matchmaking_error', (data) => {
+                log(`❌ MATCHMAKING ERROR: ${JSON.stringify(data)}`);
+                addTestResult('Matchmaking', false, 'Matchmaking failed');
+            });
+        }
+
+        function testAuthentication() {
+            if (!socket || !socket.connected) {
+                log('❌ Cannot test authentication - not connected');
+                addTestResult('Authentication', false, 'Socket not connected');
+                return;
+            }
+
+            log('=== AUTHENTICATION TEST START ===');
+            authenticationSuccess = false;
+
+            const userData = {
+                userId: 'test-vercel-' + Date.now(),
+                username: 'VercelTester',
+                rating: 1500
+            };
+
+            log(`🔐 Sending authenticate event with data: ${JSON.stringify(userData)}`);
+            socket.emit('authenticate', userData);
+
+            // Timeout check
+            setTimeout(() => {
+                if (!authenticationSuccess) {
+                    log('⏰ Authentication timed out after 5 seconds');
+                    addTestResult('Authentication', false, 'Timeout after 5 seconds');
+                }
+            }, 5000);
+        }
+
+        function testMatchmaking() {
+            if (!socket || !socket.connected) {
+                log('❌ Cannot test matchmaking - not connected');
+                addTestResult('Matchmaking', false, 'Socket not connected');
+                return;
+            }
+
+            if (!authenticationSuccess) {
+                log('❌ Cannot test matchmaking - not authenticated');
+                addTestResult('Matchmaking', false, 'Not authenticated');
+                return;
+            }
+
+            log('=== MATCHMAKING TEST START ===');
+            matchmakingSuccess = false;
+
+            const matchmakingData = {
+                timeControl: {
+                    initial: 300,
+                    increment: 3,
+                    type: 'blitz'
+                },
+                ratingRange: 200,
+                color: 'random'
+            };
+
+            log(`🎯 Sending join_matchmaking event with data: ${JSON.stringify(matchmakingData)}`);
+            socket.emit('join_matchmaking', matchmakingData);
+
+            // Timeout check
+            setTimeout(() => {
+                if (!matchmakingSuccess) {
+                    log('⏰ Matchmaking timed out after 10 seconds');
+                    addTestResult('Matchmaking', false, 'Timeout after 10 seconds');
+                }
+            }, 10000);
+        }
+
+        function testAll() {
+            clearLog();
+            log('🚀 Starting comprehensive test suite...');
+
+            testConnection();
+
+            setTimeout(() => {
+                if (socket && socket.connected) {
+                    testAuthentication();
+
+                    setTimeout(() => {
+                        testMatchmaking();
+                    }, 6000); // Wait for auth to complete
+                }
+            }, 3000); // Wait for connection
+        }
+
+        // Auto-start connection test
+        window.addEventListener('load', () => {
+            log('🎯 Testing CORRECT Vercel backend for authentication and matchmaking');
+            log('📍 Backend URL: ' + CORRECT_BACKEND);
+            testConnection();
+        });
+    </script>
+</body>
+</html>

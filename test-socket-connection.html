@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socket Connection Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .connected { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .disconnected { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .connecting { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover { background: #0056b3; }
+        .button:disabled { background: #6c757d; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔌 Socket Connection Test</h1>
+        <p>Testing connection to Railway backend: <strong>https://web-production-4fb4.up.railway.app</strong></p>
+
+        <div id="status" class="status connecting">🔄 Initializing...</div>
+
+        <div>
+            <button id="connectBtn" class="button">Connect</button>
+            <button id="disconnectBtn" class="button" disabled>Disconnect</button>
+            <button id="pingBtn" class="button" disabled>Send Ping</button>
+            <button id="clearBtn" class="button">Clear Log</button>
+        </div>
+
+        <h3>🔍 Connection Diagnostics</h3>
+        <div id="diagnostics" class="log">Waiting for connection...</div>
+
+        <h3>📋 Connection Log</h3>
+        <div id="log" class="log">Initializing socket connection test...\n</div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script>
+        let socket = null;
+        const statusEl = document.getElementById('status');
+        const logEl = document.getElementById('log');
+        const diagnosticsEl = document.getElementById('diagnostics');
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const pingBtn = document.getElementById('pingBtn');
+        const clearBtn = document.getElementById('clearBtn');
+
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            logEl.innerHTML += `[${timestamp}] ${message}\n`;
+            logEl.scrollTop = logEl.scrollHeight;
+            console.log(`[Socket Test] ${message}`);
+        }
+
+        function updateStatus(status, message) {
+            statusEl.className = `status ${status}`;
+            statusEl.innerHTML = message;
+        }
+
+        function updateDiagnostics() {
+            if (!socket) {
+                diagnosticsEl.innerHTML = 'No socket connection';
+                return;
+            }
+
+            const diagnostics = {
+                connected: socket.connected,
+                id: socket.id || 'none',
+                transport: socket.io?.engine?.transport?.name || 'unknown',
+                url: socket.io?.uri || 'unknown'
+            };
+
+            diagnosticsEl.innerHTML = Object.entries(diagnostics)
+                .map(([key, value]) => `${key}: ${value}`)
+                .join('\n');
+        }
+
+        function connect() {
+            if (socket?.connected) {
+                log('Already connected');
+                return;
+            }
+
+            updateStatus('connecting', '🔄 Connecting to Railway backend...');
+            log('Attempting to connect to: https://web-production-4fb4.up.railway.app');
+
+            // Clean up any existing connection
+            if (socket) {
+                socket.removeAllListeners();
+                socket.disconnect();
+            }
+
+            socket = io('https://web-production-4fb4.up.railway.app', {
+                transports: ['polling', 'websocket'],
+                timeout: 20000,
+                reconnection: true,
+                reconnectionDelay: 2000,
+                reconnectionDelayMax: 30000,
+                reconnectionAttempts: 15,
+                randomizationFactor: 0.3,
+                upgrade: true,
+                rememberUpgrade: true,
+                autoConnect: true,
+                withCredentials: false,
+                extraHeaders: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE,OPTIONS',
+                    'Access-Control-Allow-Headers': 'Content-Type, Authorization, Content-Length, X-Requested-With',
+                    'Cache-Control': 'no-cache'
+                },
+                query: {
+                    client: 'chess-academy-test',
+                    version: '1.0.0',
+                    platform: 'railway-test',
+                    timestamp: Date.now()
+                }
+            });
+
+            // Event listeners
+            socket.on('connect', () => {
+                log(`✅ Connected successfully! Socket ID: ${socket.id}`);
+                log(`🚀 Transport: ${socket.io.engine.transport.name}`);
+                updateStatus('connected', '✅ Connected to Railway backend');
+                connectBtn.disabled = true;
+                disconnectBtn.disabled = false;
+                pingBtn.disabled = false;
+                updateDiagnostics();
+            });
+
+            socket.on('disconnect', (reason) => {
+                log(`❌ Disconnected: ${reason}`);
+                updateStatus('disconnected', `❌ Disconnected: ${reason}`);
+                connectBtn.disabled = false;
+                disconnectBtn.disabled = true;
+                pingBtn.disabled = true;
+                updateDiagnostics();
+            });
+
+            socket.on('connect_error', (error) => {
+                log(`❌ Connection error: ${error.message}`);
+                updateStatus('disconnected', `❌ Connection failed: ${error.message}`);
+                connectBtn.disabled = false;
+                disconnectBtn.disabled = true;
+                pingBtn.disabled = true;
+                updateDiagnostics();
+            });
+
+            socket.on('reconnect', (attemptNumber) => {
+                log(`🔄 Reconnected after ${attemptNumber} attempts`);
+                updateDiagnostics();
+            });
+
+            socket.on('reconnect_attempt', (attemptNumber) => {
+                log(`🔄 Reconnection attempt ${attemptNumber}`);
+            });
+
+            socket.on('reconnect_failed', () => {
+                log(`❌ Failed to reconnect after maximum attempts`);
+            });
+
+            socket.on('pong', (data) => {
+                const latency = Date.now() - data.timestamp;
+                log(`🏓 Pong received, latency: ${latency}ms`);
+            });
+
+            socket.on('heartbeat', (data) => {
+                log(`💓 Heartbeat received: ${data.timestamp}`);
+                socket.emit('heartbeat_ack', { timestamp: Date.now() });
+            });
+
+            // Update diagnostics every few seconds
+            setInterval(updateDiagnostics, 3000);
+        }
+
+        function disconnect() {
+            if (socket) {
+                log('🔌 Disconnecting...');
+                socket.disconnect();
+                socket = null;
+            }
+        }
+
+        function sendPing() {
+            if (socket?.connected) {
+                const timestamp = Date.now();
+                log(`🏓 Sending ping with timestamp: ${timestamp}`);
+                socket.emit('ping', { timestamp });
+            } else {
+                log('❌ Cannot send ping - not connected');
+            }
+        }
+
+        function clearLog() {
+            logEl.innerHTML = '';
+        }
+
+        // Event listeners
+        connectBtn.onclick = connect;
+        disconnectBtn.onclick = disconnect;
+        pingBtn.onclick = sendPing;
+        clearBtn.onclick = clearLog;
+
+        // Auto-connect on load
+        log('Socket connection test initialized');
+        connect();
+    </script>
+</body>
+</html>

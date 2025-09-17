@@ -16,6 +16,7 @@ import LeaderboardPage from './pages/LeaderboardPage';
 import SettingsPage from './pages/SettingsPage';
 import DebugPage from './pages/DebugPage';
 import MultiplayerPage from './pages/MultiplayerPage';
+import GamePage from './pages/GamePage';
 
 // Stores and providers
 import { AuthProvider } from './components/auth/AuthProvider';
@@ -125,6 +126,13 @@ function App() {
                 <Layout>
                   <DebugPage />
                 </Layout>
+              </AppRoute>
+            } />
+
+            {/* Game Route - Full screen without Layout */}
+            <Route path="/game/:gameId" element={
+              <AppRoute>
+                <GamePage />
               </AppRoute>
             } />
 
