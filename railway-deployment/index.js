@@ -127,7 +127,7 @@ const server = createServer(app);
 
 // CORS configuration
 app.use(cors({
-  origin: ["https://elaborate-twilight-0dd8b0.netlify.app", "http://localhost:5173", "http://localhost:3000"],
+  origin: ["https://elaborate-twilight-0dd8b0.netlify.app", "https://studyify.in", "http://localhost:5173", "http://localhost:3000"],
   methods: ["GET", "POST"],
   credentials: true
 }));
@@ -148,7 +148,7 @@ app.get('/', (req, res) => {
 // Socket.IO setup
 const io = new SocketIOServer(server, {
   cors: {
-    origin: ["https://elaborate-twilight-0dd8b0.netlify.app", "http://localhost:5173", "http://localhost:3000"],
+    origin: ["https://elaborate-twilight-0dd8b0.netlify.app", "https://studyify.in", "http://localhost:5173", "http://localhost:3000"],
     methods: ["GET", "POST"],
     credentials: true
   },
@@ -349,12 +349,51 @@ io.on('connection', (socket) => {
     if (isPlayer) {
       // Player rejoining their game
       console.log('✅ Player rejoining game:', player.username);
-      socket.emit('game_started', gameState.getGameData(socket.id));
+      socket.emit('game_joined', gameState.getGameData(socket.id));
     } else {
       // Spectator joining
       console.log('👀 Spectator joining game:', player.username);
       gameState.spectators.push(socket.id);
-      socket.emit('game_started', {
+      socket.emit('game_joined', {
+        ...gameState.getGameData(socket.id),
+        playerColor: 'spectator'
+      });
+    }
+  });
+
+  // Handle reconnection after navigation (frontend sends this event)
+  socket.on('reconnect_to_game', (data) => {
+    console.log('🔄 Reconnect to game request:', data);
+
+    const { gameId } = data;
+    const gameState = activeGames.get(gameId);
+
+    if (!gameState) {
+      console.log('❌ Game not found for reconnection:', gameId);
+      socket.emit('error', { message: 'Game not found', gameId });
+      return;
+    }
+
+    const player = authenticatedPlayers.get(socket.id);
+    if (!player) {
+      socket.emit('error', { message: 'Not authenticated' });
+      return;
+    }
+
+    // Check if player is part of this game
+    const isPlayer = gameState.white.socketId === socket.id || gameState.black.socketId === socket.id;
+
+    if (isPlayer) {
+      // Player reconnecting to their game after navigation
+      console.log('✅ Player reconnected to game after navigation:', player.username);
+      socket.emit('game_rejoined', gameState.getGameData(socket.id));
+    } else {
+      // Spectator reconnecting
+      console.log('👀 Spectator reconnected to game:', player.username);
+      if (!gameState.spectators.includes(socket.id)) {
+        gameState.spectators.push(socket.id);
+      }
+      socket.emit('game_rejoined', {
         ...gameState.getGameData(socket.id),
         playerColor: 'spectator'
       });
