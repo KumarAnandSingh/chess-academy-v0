@@ -1,5 +1,7 @@
 # 🎯 Chess Academy V0 - Interactive Chess Learning Platform
 
+<!-- CI/CD Test: Sept 22, 2025 - Testing deployment to chess-academy-v0 repo without GitHub Actions -->
+
 <div align="center">
 
 [![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-chess--academy--v0.netlify.app-blue?style=for-the-badge)](https://chess-academy-v0.netlify.app)
