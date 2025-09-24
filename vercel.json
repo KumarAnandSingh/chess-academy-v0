@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "name": "chess-academy-v0",
   "alias": ["studyify.in", "www.studyify.in"],
   "builds": [
     {
@@ -11,14 +10,10 @@
       }
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ],
   "headers": [

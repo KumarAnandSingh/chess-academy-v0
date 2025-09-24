@@ -1,0 +1,321 @@
+{
+  "version": "1.0.0",
+  "language": "en-US",
+  "voice": "en_US_lessac",
+  "phrases": {
+    "EXCELLENT_MOVE": {
+      "category": "positive",
+      "priority": "high",
+      "level_trigger": [20, 21, 22, 23, 24, 25],
+      "templates": [
+        "Brilliant move!",
+        "Exceptional play!",
+        "Masterful!",
+        "Outstanding chess!",
+        "Perfect execution!"
+      ]
+    },
+    "GOOD_MOVE": {
+      "category": "positive",
+      "priority": "medium",
+      "level_trigger": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+      "templates": [
+        "Nice idea!",
+        "That improves your activity.",
+        "Good development.",
+        "Solid move.",
+        "Well played.",
+        "Nice positioning.",
+        "Good choice."
+      ]
+    },
+    "HANGING_PIECE": {
+      "category": "warning",
+      "priority": "critical",
+      "level_trigger": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+      "templates": [
+        "Careful — your {piece} on {square} is hanging.",
+        "Watch out! Your {piece} is undefended.",
+        "Your {piece} needs protection.",
+        "Danger! That {piece} can be captured.",
+        "Alert: {piece} on {square} is vulnerable."
+      ]
+    },
+    "BLUNDER_WARNING": {
+      "category": "warning",
+      "priority": "critical",
+      "level_trigger": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+      "templates": [
+        "That drops material. Consider {candidate} instead.",
+        "Careful! That loses your {piece}.",
+        "Think again — {candidate} is safer.",
+        "Oops! That's a blunder. Try {candidate}.",
+        "That move has consequences. What about {candidate}?"
+      ]
+    },
+    "MISSED_TACTIC": {
+      "category": "neutral",
+      "priority": "medium",
+      "level_trigger": [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
+      "templates": [
+        "There was a tactic: {bestMove}.",
+        "Consider {bestMove} for a tactical shot.",
+        "{bestMove} would win material.",
+        "You missed {bestMove} — a powerful move!",
+        "Look for {bestMove} next time."
+      ]
+    },
+    "CHECK_ANNOUNCEMENT": {
+      "category": "neutral",
+      "priority": "high",
+      "level_trigger": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
+      "templates": [
+        "Check!",
+        "Your king is in check!",
+        "Check! Defend your king."
+      ]
+    },
+    "CHECKMATE_FOUND": {
+      "category": "celebration",
+      "priority": "critical",
+      "level_trigger": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
+      "templates": [
+        "Checkmate! Well played!",
+        "Mate in {n}! Great spot!",
+        "You found mate in {n}!",
+        "Checkmate! Brilliant finish!",
+        "Victory! Outstanding endgame!"
+      ]
+    },
+    "OPENING_PRINCIPLE": {
+      "category": "educational",
+      "priority": "low",
+      "level_trigger": [1, 2, 3, 4, 5, 6, 7, 8],
+      "templates": [
+        "Good opening principle!",
+        "Control the center.",
+        "Develop your pieces first.",
+        "Castle for king safety.",
+        "Don't move the same piece twice.",
+        "Knights before bishops.",
+        "Excellent opening play!"
+      ]
+    },
+    "ENDGAME_ADVICE": {
+      "category": "educational",
+      "priority": "medium",
+      "level_trigger": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
+      "templates": [
+        "Activate your king in the endgame.",
+        "Centralize your king.",
+        "Push your passed pawn.",
+        "Create a passed pawn.",
+        "King and pawn endgames require precision.",
+        "Opposition is key here.",
+        "Good endgame technique!"
+      ]
+    },
+    "ENCOURAGEMENT": {
+      "category": "positive",
+      "priority": "low",
+      "level_trigger": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      "templates": [
+        "Keep thinking!",
+        "You can find it.",
+        "Take your time.",
+        "Good effort!",
+        "You're improving!",
+        "Stay focused.",
+        "Trust your instincts."
+      ]
+    },
+    "TACTICAL_PATTERN": {
+      "category": "educational",
+      "priority": "medium",
+      "level_trigger": [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
+      "templates": [
+        "Look for pins and forks.",
+        "Double attacks are powerful.",
+        "Check for discovered attacks.",
+        "Watch for back rank mates.",
+        "Deflection tactics work well here.",
+        "Remove the defender!",
+        "That's a classic tactical motif."
+      ]
+    },
+    "POSITIONAL_ADVICE": {
+      "category": "educational",
+      "priority": "medium",
+      "level_trigger": [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
+      "templates": [
+        "Improve your worst-placed piece.",
+        "Weak squares need attention.",
+        "Control key squares.",
+        "Pawn structure matters.",
+        "Create outposts for your knights.",
+        "Trade when you're ahead in material.",
+        "Excellent positional understanding!"
+      ]
+    },
+    "TIME_PRESSURE": {
+      "category": "warning",
+      "priority": "medium",
+      "level_trigger": [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
+      "templates": [
+        "Time is running low.",
+        "Consider faster moves.",
+        "You have {minutes} minutes left.",
+        "Think quickly but accurately.",
+        "Trust your first instinct."
+      ]
+    },
+    "GAME_PHASE_MIDDLE": {
+      "category": "educational",
+      "priority": "low",
+      "level_trigger": [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+      "templates": [
+        "The middlegame has begun.",
+        "Look for tactical opportunities.",
+        "Piece activity is crucial now.",
+        "Fight for the initiative.",
+        "Create threats!"
+      ]
+    },
+    "SACRIFICE_OPPORTUNITY": {
+      "category": "advanced",
+      "priority": "high",
+      "level_trigger": [18, 19, 20, 21, 22, 23, 24, 25],
+      "templates": [
+        "Consider the sacrifice on {square}.",
+        "Material isn't everything here.",
+        "Bold play might work!",
+        "Calculate the sacrifice carefully.",
+        "Sometimes you must give to receive."
+      ]
+    },
+    "LEVEL_PROGRESSION": {
+      "category": "motivation",
+      "priority": "low",
+      "level_trigger": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
+      "templates": [
+        "You're getting stronger!",
+        "Ready for the next level?",
+        "Your chess is improving!",
+        "Keep challenging yourself.",
+        "Great progress!"
+      ]
+    },
+    "OPPONENT_LEVEL": {
+      "category": "context",
+      "priority": "low",
+      "level_trigger": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
+      "templates": [
+        "This opponent is rated {rating}.",
+        "Level {level} - {difficulty} play expected.",
+        "Your opponent plays like a {skill_level}.",
+        "Expect {style} chess at this level.",
+        "This AI uses {strategy} patterns."
+      ]
+    },
+    "MOVE_QUALITY_INACCURACY": {
+      "category": "neutral",
+      "priority": "low",
+      "level_trigger": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
+      "templates": [
+        "Not the most accurate move.",
+        "There might be something better.",
+        "Consider alternatives next time.",
+        "Room for improvement there.",
+        "Close, but not quite optimal."
+      ]
+    },
+    "PAWN_STRUCTURE": {
+      "category": "educational",
+      "priority": "medium",
+      "level_trigger": [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
+      "templates": [
+        "Watch your pawn structure.",
+        "Doubled pawns can be weak.",
+        "Passed pawns are powerful.",
+        "Isolated pawns need care.",
+        "Pawn chains are strong.",
+        "Think before you move that pawn."
+      ]
+    },
+    "PIECE_COORDINATION": {
+      "category": "educational",
+      "priority": "medium",
+      "level_trigger": [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
+      "templates": [
+        "Coordinate your pieces.",
+        "Teamwork beats individual brilliance.",
+        "Connect your rooks.",
+        "Your pieces work well together.",
+        "Harmony in piece placement!"
+      ]
+    }
+  },
+  "level_coaching_style": {
+    "1-5": {
+      "name": "Beginner Friendly",
+      "focus": ["encouragement", "basic_principles", "hanging_pieces"],
+      "verbosity": "high",
+      "patience": "maximum"
+    },
+    "6-10": {
+      "name": "Learning Phase",
+      "focus": ["tactics", "opening_principles", "endgame_basics"],
+      "verbosity": "medium",
+      "patience": "high"
+    },
+    "11-15": {
+      "name": "Intermediate Growth",
+      "focus": ["position_evaluation", "planning", "tactical_patterns"],
+      "verbosity": "medium",
+      "patience": "medium"
+    },
+    "16-20": {
+      "name": "Advanced Training",
+      "focus": ["deep_calculation", "positional_play", "complex_endgames"],
+      "verbosity": "low",
+      "patience": "low"
+    },
+    "21-25": {
+      "name": "Master Level",
+      "focus": ["excellence", "precision", "creative_solutions"],
+      "verbosity": "minimal",
+      "patience": "minimal"
+    }
+  },
+  "context_variables": {
+    "piece": ["pawn", "knight", "bishop", "rook", "queen", "king"],
+    "square": ["a1-h8"],
+    "bestMove": "calculated_best_move",
+    "candidate": "suggested_alternative",
+    "n": "moves_to_mate",
+    "rating": "opponent_elo",
+    "level": "current_level",
+    "difficulty": ["beginner", "easy", "medium", "hard", "expert", "master"],
+    "skill_level": ["novice", "club player", "expert", "master", "grandmaster"],
+    "style": ["aggressive", "positional", "tactical", "solid"],
+    "strategy": ["opening", "middlegame", "endgame", "tactical"],
+    "minutes": "remaining_time"
+  },
+  "talkative_levels": {
+    "low": {
+      "description": "Critical moves only",
+      "triggers": ["HANGING_PIECE", "BLUNDER_WARNING", "CHECK_ANNOUNCEMENT", "CHECKMATE_FOUND", "EXCELLENT_MOVE"],
+      "frequency": 0.2
+    },
+    "medium": {
+      "description": "Good moves and mistakes",
+      "triggers": ["HANGING_PIECE", "BLUNDER_WARNING", "CHECK_ANNOUNCEMENT", "CHECKMATE_FOUND", "EXCELLENT_MOVE", "GOOD_MOVE", "MISSED_TACTIC", "TACTICAL_PATTERN"],
+      "frequency": 0.4
+    },
+    "high": {
+      "description": "All moves with coaching",
+      "triggers": "all",
+      "frequency": 0.8
+    }
+  }
+}
