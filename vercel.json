@@ -1,15 +1,6 @@
 {
   "version": 2,
   "alias": ["studyify.in", "www.studyify.in"],
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    }
-  ],
   "rewrites": [
     {
       "source": "/(.*)",
@@ -38,9 +29,5 @@
         }
       ]
     }
-  ],
-  "env": {
-    "VITE_APP_TITLE": "Chess Academy - Studyify.in",
-    "VITE_APP_ENVIRONMENT": "production"
-  }
+  ]
 }
