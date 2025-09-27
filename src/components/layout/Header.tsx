@@ -1,16 +1,15 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { 
-  Crown, 
-  Menu, 
-  X, 
-  User, 
-  Settings, 
-  BookOpen, 
-  Puzzle, 
-  Monitor, 
-  Trophy,
-  BarChart3
+import {
+  Crown,
+  Menu,
+  X,
+  User,
+  Settings,
+  BookOpen,
+  Puzzle,
+  Monitor,
+  Trophy
 } from 'lucide-react'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
@@ -26,10 +25,9 @@ import { useAuthStore } from '../../stores/authStore'
 import { cn } from '../../lib/utils'
 
 const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: BarChart3 },
+  { name: 'vs Computer', href: '/play', icon: Monitor },
   { name: 'Lessons', href: '/lessons', icon: BookOpen },
   { name: 'Puzzles', href: '/puzzles', icon: Puzzle },
-  { name: 'vs Computer', href: '/play', icon: Monitor },
   { name: 'Leaderboard', href: '/leaderboard', icon: Trophy }
 ]
 
@@ -61,7 +59,7 @@ const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle, isMobileMenuOpen })
         </Button>
 
         {/* Logo */}
-        <Link to="/dashboard" className="flex items-center space-x-2 mr-8">
+        <Link to="/play" className="flex items-center space-x-2 mr-8">
           <Crown className="h-6 w-6 text-primary" />
           <span className="font-bold text-xl hidden sm:inline-block">Chess Academy</span>
           <span className="font-bold text-xl sm:hidden">CA</span>
